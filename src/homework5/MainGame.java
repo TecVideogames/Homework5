@@ -62,6 +62,9 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     Image imaBlock1;
     Image imaBlock2;
     
+    // tiempo
+    private long tiempoActual;
+    
     /**
      * MainGame
      * 
@@ -160,7 +163,9 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
      * instructions
      */
     @Override
-    public void run() {        
+    public void run() {  
+        
+        tiempoActual = System.currentTimeMillis();
         // The Game cycle never stops until the game is exited
         while (true) { 
             // if game is not paused or lost continue with normal game execution
@@ -201,8 +206,35 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // updateAnimations
         for (int iI = 0; iI< lklAnimations.size(); iI ++) {
             Animacion aniFor = (Animacion) lklAnimations.get(iI);
-            if( aniFor == null && aniFor.getTiempoDeAnimacion() > 1000 ) {
-                lklAnimations.set(iI, null);
+            
+            if( !aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() > 280 ) {
+                aniFor.setBoolTermina(true);
+                
+            } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() < 280) {
+            System.out.println(iI+1+" "+aniFor.getTiempoActual());    
+                        //Determina el tiempo que ha transcurrido desde que el Applet inicio su ejecución
+            long tiempoTranscurrido =
+                System.currentTimeMillis() - aniFor.getTiempoActual();
+
+//            //Guarda el tiempo actual
+//            tiempoActual += tiempoTranscurrido;
+            aniFor.setTiempoActual( aniFor.getTiempoActual() + tiempoTranscurrido );
+            aniFor.actualiza(tiempoTranscurrido);
+//            //Actualiza la animación en base al tiempo transcurrido
+//            anim.actualiza(tiempoTranscurrido);
+//            if( anim.getTiempoDeAnimacion() > 1000){
+//                anim = null;
+//            }
+//                
+//                
+//                
+//                long tiempoTranscurrido =
+//                System.currentTimeMillis() - tiempoActual;
+//
+//            //Guarda el tiempo 
+//                if(!aniFor.getBoolTermina())
+//            aniFor.actualiza(tiempoTranscurrido);
+//            tiempoActual += tiempoTranscurrido;
             }
         }
         
@@ -352,11 +384,24 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 // Paint player's points
                 graDibujo.drawString(String.valueOf("Points: " + 
                         satPlayer.getIScore()), 100, 50);
+                
+                // Paint animations
+                if( lklAnimations != null ){
+                    for (Object objAux : lklAnimations) {
+                        Animacion aniAux = (Animacion) objAux;
+                        if (aniAux != null && !aniAux.getBoolTermina()) {
+                             graDibujo.drawImage(aniAux.getImagen(), (int) aniAux.getPosX(), (int) aniAux.getPosY(), this);
+                        } 
+                    }
+                }
+                
             } // Display message if images are not loaded
             else {
                 // Display message while image uploads
                 graDibujo.drawString("No se cargo la imagen..", 20, 20);
             }
+            
+                        
         }
     }
 
@@ -452,9 +497,23 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             for (int iJ = 0; iJ < iBlockC; iJ ++) {
                 // Desaparecer bloque
                 if (satArrBlocks[iI][iJ].intersects(satBall)) {
+                                    
                     if (satArrBlocks[iI][iJ].getBPaint()) {
                         // Win points
                         satPlayer.setIScore(satPlayer.getIScore() + 10);
+                        if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
+                                || satArrBlocks[iI][iJ].getStrName() == "BOMBER") {
+                        // add animation to linked list
+                            aniAux = new Animacion();
+                            // edit animation contents
+                            aniAux.sumaCuadro(imaBlock0, 100);
+                            aniAux.sumaCuadro(imaBlock1, 100);
+                            aniAux.sumaCuadro(imaBlock2, 100);
+                            aniAux.setPosX(satArrBlocks[iI][iJ].getIPosX());
+                            aniAux.setPosY(satArrBlocks[iI][iJ].getIPosY());
+                            aniAux.setTiempoActual(System.currentTimeMillis());
+                            lklAnimations.add(aniAux);
+                        }
                     }
                     
                     if (satArrBlocks[iI][iJ].getBPaint()) { 
@@ -546,26 +605,27 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 }
                 case "BOOM": { // Destroy surrounding blocks
                     // add animation to linked list
-                    aniAux = new Animacion();
-                    // edit animation contents
-                    aniAux.sumaCuadro(imaBoom0, 100);
-                    aniAux.sumaCuadro(imaBoom1, 100);
-                    aniAux.sumaCuadro(imaBoom2, 100);
-                    aniAux.sumaCuadro(imaBoom3, 100);
-                    aniAux.sumaCuadro(imaBoom4, 100);
-                    aniAux.sumaCuadro(imaBoom5, 100);
-                    aniAux.sumaCuadro(imaBoom6, 100);
-                    aniAux.sumaCuadro(imaBoom7, 100);
-                    aniAux.sumaCuadro(imaBoom8, 100);
-                    aniAux.sumaCuadro(imaBoom9, 100);
-                    aniAux.sumaCuadro(imaBoom10, 100);
-                    aniAux.sumaCuadro(imaBoom11, 100);
-                    aniAux.sumaCuadro(imaBoom12, 100);
-                    aniAux.sumaCuadro(imaBoom13, 100);
-                    aniAux.sumaCuadro(imaBoom14, 100);
-                    aniAux.setPosX(satArrBlocks[iR][iC].getIPosX());
-                    aniAux.setPosY(satArrBlocks[iR][iC].getIPosY() + satArrBlocks[iR][iC].getHeight());
-                    lklAnimations.add(aniAux);
+//                    aniAux = new Animacion();
+//                    // edit animation contents
+//                    aniAux.sumaCuadro(imaBoom0, 20);
+//                    aniAux.sumaCuadro(imaBoom1, 20);
+//                    aniAux.sumaCuadro(imaBoom2, 20);
+//                    aniAux.sumaCuadro(imaBoom3, 20);
+//                    aniAux.sumaCuadro(imaBoom4, 20);
+//                    aniAux.sumaCuadro(imaBoom5, 20);
+//                    aniAux.sumaCuadro(imaBoom6, 20);
+//                    aniAux.sumaCuadro(imaBoom7, 20);
+//                    aniAux.sumaCuadro(imaBoom8, 20);
+//                    aniAux.sumaCuadro(imaBoom9, 20);
+//                    aniAux.sumaCuadro(imaBoom10, 20);
+//                    aniAux.sumaCuadro(imaBoom11, 20);
+//                    aniAux.sumaCuadro(imaBoom12, 20);
+//                    aniAux.sumaCuadro(imaBoom13, 20);
+//                    aniAux.sumaCuadro(imaBoom14, 20);
+//                    aniAux.setPosX(satArrBlocks[iR][iC].getIPosX());
+//                    aniAux.setPosY(satArrBlocks[iR][iC].getIPosY());
+//                    aniAux.setTiempoActual(System.currentTimeMillis());
+//                    lklAnimations.add(aniAux);
                     
                     if(iR != 0) { // If not in upper row
                         iR2--;

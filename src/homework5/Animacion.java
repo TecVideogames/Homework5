@@ -16,6 +16,8 @@ public class Animacion{
 	private long duracionTotal;
         private int iPosX;
         private int iPosY;
+        private boolean boolTermina;
+        private long tiempoActual;
 	
 	/**
 		Crea una nueva Animacion vacía
@@ -25,6 +27,7 @@ public class Animacion{
 		duracionTotal = 0;
                 iPosX = 0;
                 iPosY = 0;
+                boolTermina = false;
 		iniciar();
 	}
 	
@@ -61,6 +64,20 @@ public class Animacion{
 			}
 		}
 	}
+        
+        public boolean getBoolTermina(){
+            return boolTermina;
+        }
+        public void setBoolTermina(boolean bTermina){
+            boolTermina = bTermina;
+        }
+        
+        public long getTiempoActual(){
+            return tiempoActual;
+        }
+        public void setTiempoActual(long iTiempo){
+            tiempoActual = iTiempo;
+        }
         
         /**
 		Actualiza la imagen (cuadro) actual de la animación,
