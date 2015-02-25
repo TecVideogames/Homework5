@@ -81,6 +81,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         ballNewGame(iDifficulty);
         // Add bonuses
         selectPowerUps(iBlockR, iBlockC);
+        // Add lives to each block
+        selectBlockLives(iBlockR, iBlockC);
         
         //Adds to the JFrame the capability to hear keyboard events
 	addKeyListener(this);
@@ -380,6 +382,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             for (int iJ = 0; iJ < iBlockC; iJ ++) {
                 if(satArrBlocks[iI][iJ].getBPaint()) {
                     satArrBlocks[iI][iJ].paint(graDibujo, this);
+                    showBlockLives(graDibujo, iI, iJ);
                 }
             }
         }
@@ -388,11 +391,20 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     public void intersectBlocks(int iBlockR, int iBlockC) {
         for (int iI = 0; iI < iBlockR; iI ++) {
             for (int iJ = 0; iJ < iBlockC; iJ ++) {
-                // Desaparecer bloque
+                // Eliminate block if lives get to 0
                 if (satArrBlocks[iI][iJ].intersects(satBall)) {
                     if (satArrBlocks[iI][iJ].getBPaint()) {
                         // Win points
-                        satPlayer.setIScore(satPlayer.getIScore() + 10);
+                        if (satArrBlocks[iI][iJ].getILives() > 0) {
+                            checkPowerUps(iI, iJ);
+                            satArrBlocks[iI][iJ].setILives(
+                                    satArrBlocks[iI][iJ].getILives() - 1); 
+                        }
+                        
+                        if (!satArrBlocks[iI][iJ].getStrName().
+                                equals("NORMAL")) {
+                            satArrBlocks[iI][iJ].setILives(0);
+                        }
                     }
                     
                     if (satArrBlocks[iI][iJ].getBPaint()) { 
@@ -413,7 +425,10 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                             bounceLeft();
                         }
                     }
-                    checkPowerUps(iI, iJ);
+                }
+                
+                if (satArrBlocks[iI][iJ].getILives() <= 0) {
+                    satPlayer.setIScore(satPlayer.getIScore() + 10);
                     satArrBlocks[iI][iJ].setBPaint(false);
                 }
                 
@@ -436,8 +451,29 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    public void selectBlockLives(int iBlockR, int iBlockC) {
+        // Number of lives for each block generation
+        int iLives;
+                
+        for (int iI = 0; iI < iBlockR; iI ++) {
+            for (int iJ = 0; iJ < iBlockC; iJ ++) {
+                // Generate a life between 1 amd 3
+                iLives = (int) (Math.random() * 3) + 1;
+                satArrBlocks[iI][iJ].setILives(iLives);
+            }
+        }
+    }
+    
+    public void showBlockLives(Graphics graDibujo, int iR, int iC) {
+        graDibujo.drawString(Integer.toString(satArrBlocks[iR][iC].getILives()),
+                satArrBlocks[iR][iC].getIPosX() + 
+                        (satArrBlocks[iR][iC].getWidth() / 2),
+                satArrBlocks[iR][iC].getIPosY() +
+                        (satArrBlocks[iR][iC].getHeight() / 2));
+    }
+    
     public void selectPowerUps(int iBlockR, int iBlockC) {
-        // Number of bonus generation * 2
+        // Number of bonus generation
         int iBonus = (int) ((Math.random() * 3) + 1);
         // Type of bonus
         int iBonusID;
