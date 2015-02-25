@@ -11,6 +11,7 @@
 
 package homework5;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -147,7 +148,12 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
      */
     public void actualize() {
         satPlayer.move();
-        satBall.move();
+        if (satBall.getBehavior() == Saturn086_Object.eBehavior.STOP_RIGHT) {
+            ballStartPos();
+        }
+        else {
+            satBall.move();
+        }
     }
     
     // Ball bounces on left side
@@ -213,6 +219,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // Ball bounces on bottom margin
         if(satBall.bottomMarginCheck(iJFrameHeight)) {
             bounceBottom();
+            satBall.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
             // Player looses 1 live
             satPlayer.setILives(satPlayer.getILives() - 1);
         }
@@ -287,11 +294,13 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 paintBlocks(graDibujo, iBlockR, iBlockC);
                 satBall.paint(graDibujo, this);
                 // Paint player's lives
+                graDibujo.setColor(Color.white);
                 graDibujo.drawString(String.valueOf("Lives: " + 
                         satPlayer.getILives()), 10, 50);
                 // Paint player's points
                 graDibujo.drawString(String.valueOf("Points: " + 
                         satPlayer.getIScore()), 100, 50);
+                graDibujo.setColor(Color.black);
             } // Display message if images are not loaded
             else {
                 // Display message while image uploads
@@ -339,6 +348,16 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 satPlayer.setBehavior(Saturn086_Object.eBehavior.STOP_LEFT);
             }
         }
+        if (satBall.getBehavior() == Saturn086_Object.eBehavior.STOP_RIGHT) {
+            // Start ball movement to the left
+            if (keyEvent.getKeyCode() == 'L') {  
+                satBall.setBehavior(Saturn086_Object.eBehavior.MOVE_UP);
+            }
+            // Start ball movement to the right
+            else if (keyEvent.getKeyCode() == 'R') {  
+                satBall.setBehavior(Saturn086_Object.eBehavior.MOVE_RIGHT);
+            }
+        }
     }
     
     public void playerNewGame() {
@@ -370,11 +389,16 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     
     public void ballNewGame(int iDifficulty) {
         satBall.setImageIcon("ball.gif", 30, 30);
-        satBall.setBehavior(Saturn086_Object.eBehavior.MOVE_UP);
+        satBall.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
         satBall.setISpeed((2 * iDifficulty) + 2);
         satBall.setStrName("Ball");
-        satBall.setIPosX(iJFrameWidth / 2);
-        satBall.setIPosY(iJFrameHeight / 2);
+        ballStartPos();
+    }
+    
+    public void ballStartPos() {
+        satBall.setIPosX(satPlayer.getIPosX() + (satPlayer.getWidth() / 2) - 
+                (satBall.getWidth() / 2));
+        satBall.setIPosY(satPlayer.getIPosY() - (satBall.getHeight()));
     }
     
     public void paintBlocks(Graphics graDibujo, int iBlockR, int iBlockC) {
@@ -427,11 +451,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     }
                 }
                 
-                if (satArrBlocks[iI][iJ].getILives() <= 0) {
+                if (satArrBlocks[iI][iJ].getILives() <= 0 && 
+                        satArrBlocks[iI][iJ].getBPaint()) {
                     satPlayer.setIScore(satPlayer.getIScore() + 10);
                     satArrBlocks[iI][iJ].setBPaint(false);
-                }
-                
+                }   
             }
         }
     }
