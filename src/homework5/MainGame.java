@@ -176,6 +176,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         selectPowerUps(iBlockR, iBlockC);
         // Add lives to each block
         selectBlockLives(iBlockR, iBlockC); 
+        // Select number of blocks to show
+        iBlockCant = numberOfBlocks();
         // Select how many blocks will be shown ér level
         randomFigure(iBlockR, iBlockC);
     }
@@ -306,6 +308,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             newGame();
             satPlayer.setILives(iLives);
             satPlayer.setIScore(iScore + 10);
+            iBlockCant = numberOfBlocks() + 10;
             randomFigure(iBlockR, iBlockC); 
         }
     }
@@ -388,10 +391,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         intersectBlocks(iBlockR, iBlockC);
         // Collision with player
         intersectPlayer();
-
-        // Run animation
-        // TODO
-
         // Collision with falling bombs
         intersectBombs();
 
@@ -692,48 +691,30 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 satArrBlocks[iI][iJ].setIPosY(iI * 
                         satArrBlocks[iI][iJ].getHeight() + 64);
                 satArrBlocks[iI][iJ].setStrName("NORMAL");
+                satArrBlocks[iI][iJ].setBPaint(false);
             }
         }
     }
     
-    private void numberOfBlocks() {
-       iBlockCant = iLevel * 5; 
+    public int numberOfBlocks() {
+       int iCant = iLevel * 5; 
        
-       if (iBlockCant > 48) {
-            iBlockCant = 48;
-        }
+       if (iCant > (iBlockR * iBlockC)) {
+            iCant = (iBlockR * iBlockC);
+       }
+       
+       return iCant;
     }
     
     public void randomFigure(int iBlockR, int iBlockC) {
         int iR;
         int iC;
         
-        numberOfBlocks();
-        
-        for (int iI = 0; iI < iBlockR; iI ++) {
-            for (int iJ = 0; iJ < iBlockC; iJ ++) {
-                if (!satArrBlocks[iI][iJ].getStrName().equals("NORMAL")
-                        && satArrBlocks[iI][iJ].getBPaint() && 
-                        !satArrBlocks[iI][iJ].getStrName().equals("BOMBER")) {
-                        iBlockCant++;
-                }
-            }
-        }
-        
-        for (int iI = 0; iI < iBlockR; iI ++) {
-            for (int iJ = 0; iJ < iBlockC; iJ ++) {
-                // Generate random coordinate
-                for (int iK = 0; iK < iBlockCant; iK ++) {
-                    iR = (int) (Math.random() * iBlockR);
-                    iC = (int) (Math.random() * iBlockC);
-                    if (satArrBlocks[iR][iC].getStrName().equals("NORMAL")) {
-                        satArrBlocks[iR][iC].setBPaint(false);
-                    }
-                    else {
-                        iK --;
-                    }
-                }
-            }
+        // Generate random coordinate
+        for (int iK = 0; iK < numberOfBlocks(); iK ++) {
+            iR = (int) (Math.random() * iBlockR);
+            iC = (int) (Math.random() * iBlockC);
+            satArrBlocks[iR][iC].setBPaint(true);
         }
     }
     
@@ -791,7 +772,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                                     
                     if (satArrBlocks[iI][iJ].getBPaint()) {
                         // Win points
-                        satPlayer.setIScore(satPlayer.getIScore() + 10);
+                        //satPlayer.setIScore(satPlayer.getIScore() + 10);
                         if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
                                 || satArrBlocks[iI][iJ].getStrName() == "BOMBER") {
                         // add animation to linked list
