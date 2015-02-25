@@ -427,7 +427,28 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
         
         if(bLoading && keyEvent.getKeyCode() == 'H') {
-            JOptionPane.showMessageDialog(this, "Breaking Bad", "Instructions",
+            JOptionPane.showMessageDialog(this, "Breaking Bad\n\n"
+                    + "You have found some anfetamine contraband\n"
+                    + "produced by Walter. Help Hank to destroy\n "
+                    + "them by throwing your handy ball at them.\n\n"
+                    + "Move the bar with the left and right arrow\n"
+                    + "keys. If your ball touches the ground (Which you\n"
+                    + "don't like), you loose a life. When you start\n"
+                    + "or loose a life, throw the ball to the left or\n"
+                    + "the right by pressing \'R\' or \'L\'.\n\n"
+                    + "Walter is tricky sometimes, so be careful with\n"
+                    + "some bombs he has hidden in his cargo, if they\n"
+                    + "touch the bar, the bar is reduced in size.\n\n"
+                    + "Each anfetamine destroyed grants you 10 points\n"
+                    + "Each one has a number representing its resistance,\n"
+                    + "in other words, the number of hits required to\n"
+                    + "destroy it. A PINK anfetamine grants you a life,\n"
+                    + "a BLUE anfetamine accelerates your throws for 30 sec.,\n"
+                    + "a GREEN anfetamine is a glitchy bomb that will explode\n"
+                    + "on contact and destroy all surrounding anfetamines.\n\n"
+                    + "The game ends when all lives are lost or all\n"
+                    + "anfetamines are destroyed. You can exit the game at\n"
+                    + "any time with the \'ESC\' key.", "Instructions",
                     JOptionPane.PLAIN_MESSAGE, imiImageInstructions);
         }
         
