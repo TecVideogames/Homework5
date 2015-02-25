@@ -17,6 +17,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.net.URL;
+import java.util.LinkedList;
 import javax.swing.JFrame;
 
 public class MainGame extends JFrame implements Runnable, KeyListener {
@@ -37,6 +38,29 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private Saturn086_DefaultEnemy[][] satArrBlocks;
     private Saturn086_DefaultEnemy satBall;
     private Graphics graGraficsJFrame; // Graphic objects of the image
+    private LinkedList lklAnimations;
+    private Animacion aniAux;
+    // BOOM animation images
+    Image imaBoom0;
+    Image imaBoom1;
+    Image imaBoom2;
+    Image imaBoom3;
+    Image imaBoom4;
+    Image imaBoom5;
+    Image imaBoom6;
+    Image imaBoom7;
+    Image imaBoom8;
+    Image imaBoom9;
+    Image imaBoom10;
+    Image imaBoom11;
+    Image imaBoom12;
+    Image imaBoom13;
+    Image imaBoom14;
+    
+    // BLOCK animation images
+    Image imaBlock0;
+    Image imaBlock1;
+    Image imaBlock2;
     
     /**
      * MainGame
@@ -65,6 +89,33 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         iBlockC = 16;
         iDifficulty = 1;
         iCounterLoading = 100;
+        
+        // animations images
+        //Se cargan las imágenes(cuadros) para la animación de BOOM
+        imaBoom0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-0.gif"));
+        imaBoom1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-1.gif"));
+        imaBoom2 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-2.gif"));
+        imaBoom3 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-3.gif"));
+        imaBoom4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-4.gif"));
+        imaBoom5 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-5.gif"));
+        imaBoom6 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-6.gif"));
+        imaBoom7 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-7.gif"));
+        imaBoom8 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-8.gif"));
+        imaBoom9 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-9.gif"));
+        imaBoom10 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-10.gif"));
+        imaBoom11 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-11.gif"));
+        imaBoom12 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-12.gif"));
+        imaBoom13 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-13.gif"));
+        imaBoom14 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-14.gif"));
+        
+        //Se cargan las imágenes(cuadros) para la animación de BOOM
+        imaBlock0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_000.gif"));
+        imaBlock1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_001.gif"));
+        imaBlock2 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_002.gif"));
+        
+        // initialized animations linked list
+        lklAnimations = new LinkedList<Animacion>();
+        
         // Set JFrame size
         setSize(iJFrameWidth, iJFrameHeight);
         
@@ -146,6 +197,15 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     public void actualize() {
         satPlayer.move();
         satBall.move();
+        
+        // updateAnimations
+        for (int iI = 0; iI< lklAnimations.size(); iI ++) {
+            Animacion aniFor = (Animacion) lklAnimations.get(iI);
+            if( aniFor == null && aniFor.getTiempoDeAnimacion() > 1000 ) {
+                lklAnimations.set(iI, null);
+            }
+        }
+        
     }
     
     // Ball bounces on left side
@@ -219,6 +279,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         intersectBlocks(iBlockR, iBlockC);
         // Collision with player
         intersectPlayer();
+        // Run animation
+        // TODO
     }
     
     /**
@@ -483,6 +545,27 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     break;
                 }
                 case "BOOM": { // Destroy surrounding blocks
+                    // add animation to linked list
+                    aniAux = new Animacion();
+                    // edit animation contents
+                    aniAux.sumaCuadro(imaBoom0, 100);
+                    aniAux.sumaCuadro(imaBoom1, 100);
+                    aniAux.sumaCuadro(imaBoom2, 100);
+                    aniAux.sumaCuadro(imaBoom3, 100);
+                    aniAux.sumaCuadro(imaBoom4, 100);
+                    aniAux.sumaCuadro(imaBoom5, 100);
+                    aniAux.sumaCuadro(imaBoom6, 100);
+                    aniAux.sumaCuadro(imaBoom7, 100);
+                    aniAux.sumaCuadro(imaBoom8, 100);
+                    aniAux.sumaCuadro(imaBoom9, 100);
+                    aniAux.sumaCuadro(imaBoom10, 100);
+                    aniAux.sumaCuadro(imaBoom11, 100);
+                    aniAux.sumaCuadro(imaBoom12, 100);
+                    aniAux.sumaCuadro(imaBoom13, 100);
+                    aniAux.sumaCuadro(imaBoom14, 100);
+                    aniAux.setPosX(satArrBlocks[iR][iC].getIPosX());
+                    aniAux.setPosY(satArrBlocks[iR][iC].getIPosY() + satArrBlocks[iR][iC].getHeight());
+                    lklAnimations.add(aniAux);
                     
                     if(iR != 0) { // If not in upper row
                         iR2--;
