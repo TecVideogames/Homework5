@@ -10,6 +10,8 @@
 
 package homework5;
 
+import java.awt.Rectangle;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 
@@ -236,7 +238,22 @@ public class Saturn086_Player extends Saturn086_Character{
      */
     @Override
     public boolean intersects(Object objParameter) {
-        // Not defined for this application
+        // Check that the parameter is an Bomb
+        if (objParameter instanceof Saturn086_DefaultEnemy) {
+            // Cast object to Saturn086_DefaultEnemy object
+            Saturn086_DefaultEnemy satBomb;
+            satBomb = (Saturn086_DefaultEnemy) objParameter;
+            
+            // Create container figure
+            Rectangle elfThis = new Rectangle(this.getIPosX(), 
+                    this.getIPosY(), this.getWidth(), this.getHeight());
+
+            Area areThis = new Area(elfThis);
+            
+            return  satBomb.getStrName().equals("BOMB") && areThis.intersects(
+                    satBomb.getIPosX(), satBomb.getIPosY(), satBomb.getWidth(),
+                    satBomb.getHeight());
+        }
         return false;
     }   
 }

@@ -63,6 +63,10 @@ public class Saturn086_DefaultEnemy extends Saturn086_Character{
                 setIPosY(getIPosY() + iSpeed);
                 break;
             }
+            case STOP_DOWN: { // Down (Used for bombs)
+                setIPosY(getIPosY() + iSpeed);
+                break;
+            }
         }
     }
 
@@ -252,7 +256,8 @@ public class Saturn086_DefaultEnemy extends Saturn086_Character{
 
             Area areThis = new Area(elfThis);
             
-            return satBall.getStrName().equals("Ball") && areThis.intersects(
+            return (satBall.getStrName().equals("Ball") || 
+                    satBall.getStrName().equals("BOMB")) && areThis.intersects(
                     satBall.getIPosX(), satBall.getIPosY(), satBall.getWidth(),
                     satBall.getHeight());
         }
