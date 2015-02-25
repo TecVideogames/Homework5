@@ -10,14 +10,13 @@ package homework5;
  * @version 1.0
  */
 
-import java.applet.AudioClip;
 import java.net.URL;
 
 public abstract class Saturn086_Character extends Saturn086_VisualObject {
     protected int iLives; // Object's lives
     protected String strName; // Object's name
     protected int iSpeed; // Objects speed
-    //protected AudioClip aucSound; // Object's Audioclip
+    protected SoundClip socSound; // Object's SoundClip
     protected URL urlSound; // Object's AudioClip's URL
     protected int iPointerDistX; // Mouse Pointer's distance from x position
     protected int iPointerDistY; // Mouse Pointer's distance from y position
@@ -111,51 +110,26 @@ public abstract class Saturn086_Character extends Saturn086_VisualObject {
     }
     
     /**
-     * setSoundURL
+     * setSoundClip
      * 
-     * Set object's sound URL
-     * 
-     * @param strURL is a <code> String </code> with the sound's URL
-     */
-    private void setSoundURL(String strURL) {
-        this.urlSound = this.getClass().getResource(strURL);
-    }
-    
-    /**
-     * getSoundURL
-     * 
-     * Get object's sound URL
-     * 
-     * @return an <code> URL </code> which refrence's the object's sound URL
-     */
-    public URL getSoundURL() {
-        return urlSound;
-    }
-    
-    /**
-     * setAudioClip
-     * 
-     * Set object's AudioClip
-     * 
-     * @param aucSound is an <code> AudioClip </code> which is used to assign
-     * the object's AudioClip
+     * Set object's SoundClip
+
      * @param strURL is a <code> String </code> which references the sound's URL 
-     *
-    public void setAudioClip(AudioClip aucSound, String strURL) {
-        setSoundURL(strURL);
-        this.aucSound = aucSound; 
-    }*/
+     */
+    public void setSoundClip(String strURL) {
+        socSound = new SoundClip(strURL);
+    }
     
     /**
      * getSound
      * 
-     * Get the object's AudioClip
+     * Get the object's SoundClip
      * 
-     * @return an <code> AudioClip </code> with the object's AudioClip
-     *
-    public AudioClip getSound() {
-        return aucSound;
-    }*/
+     * @return an <code> SoundClip </code> with the object's SoundClip
+     */
+    public SoundClip getSound() {
+        return socSound;
+    }
 
     /**
      * setBehavior

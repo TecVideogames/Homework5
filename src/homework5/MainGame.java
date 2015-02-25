@@ -5,13 +5,14 @@
  * 
  * @author Marco Antonio Peyrot A00815262
  * @author Mario Sergio Fuentes AA01036141
- * @version 1.0
+ * @version 2.3
  * @date 23/02/2015
  */
 
 package homework5;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -26,18 +27,23 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private boolean bPause;
     private boolean bGameOver;
     private boolean bLoading;
+    private boolean bFirstTime;
     private int iJFrameWidth;
     private int iJFrameHeight;
     private int iBlockR;
     private int iBlockC;
     private int iDifficulty;
     private int iCounterLoading;
+    private int iCantBombs;
     private Image imaImageJFrame;
     private Image imaImageGameOver;
     private Saturn086_Player satPlayer;
     private Saturn086_DefaultEnemy[][] satArrBlocks;
     private Saturn086_DefaultEnemy satBall;
+    private Saturn086_DefaultEnemy[] satArrBombs;
     private Graphics graGraficsJFrame; // Graphic objects of the image
+    private SoundClip socMainMusic;
+    private SoundClip socMenuMusic;
     
     /**
      * MainGame
@@ -60,12 +66,20 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         bGameOver = false;
         bPause = false;
         bLoading = true;
+        bFirstTime = true;
         iJFrameHeight = 600;
         iJFrameWidth = 816;
         iBlockR = 3;
         iBlockC = 16;
         iDifficulty = 1;
         iCounterLoading = 100;
+        iCantBombs = 5;
+        socMainMusic = new SoundClip("Main.wav");
+        socMainMusic.setLooping(true);
+        socMenuMusic = new SoundClip("Menu.wav");
+        socMenuMusic.setLooping(true);
+        socMainMusic.stop();
+        socMenuMusic.play();
         // Set JFrame size
         setSize(iJFrameWidth, iJFrameHeight);
         
@@ -73,6 +87,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         satArrBlocks = new Saturn086_DefaultEnemy[iBlockR][iBlockC];
         satPlayer = new Saturn086_Player();
         satBall = new Saturn086_DefaultEnemy();
+        satArrBombs = new Saturn086_DefaultEnemy[iCantBombs];
         
         // New game player attributes inicialization
         playerNewGame();
@@ -80,6 +95,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         blocksNewGame(iBlockR, iBlockC);
         // New game ball attributes inicialization
         ballNewGame(iDifficulty);
+        // Add bombs
+        createBombs();
         // Add bonuses
         selectPowerUps(iBlockR, iBlockC);
         // Add lives to each block
@@ -122,9 +139,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             }
             else {
                 if (bLoading) {
-                    iCounterLoading--;
+                    //iCounterLoading--;
                     if(iCounterLoading == 0) {
                         bLoading = false;
+                        socMenuMusic.stop();
+                        socMainMusic.play();
                     }
                 }
                 // Code for menu SERGIO VAS AQUI
@@ -148,6 +167,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
      */
     public void actualize() {
         satPlayer.move();
+        moveBombs();
         if (satBall.getBehavior() == Saturn086_Object.eBehavior.STOP_RIGHT) {
             ballStartPos();
         }
@@ -228,6 +248,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         intersectBlocks(iBlockR, iBlockC);
         // Collision with player
         intersectPlayer();
+        // Collision with falling bombs
+        intersectBombs();
     }
     
     /**
@@ -282,16 +304,51 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
      */
     public void paint2(Graphics graDibujo) {
         // Verify that game hasn't ended
-        if (bGameOver) {
-            // se dibuja imagen de fin de juego
-            graDibujo.drawImage(imaImageGameOver, 210, 100, this);
+        if (bGameOver || bLoading) {
+            graDibujo.setColor(Color.white);
+                Font fonFont = new Font("Arial", Font.PLAIN, 30);
+                graDibujo.setFont(fonFont);
+                
+                if(bGameOver) {
+                    graDibujo.drawString("Game Over", iJFrameWidth / 2 - 55 ,
+                            60);
+                    fonFont = new Font("Arial", Font.PLAIN, 15);
+                    graDibujo.setFont(fonFont);
+                    graDibujo.drawString("Points: " + satPlayer.getIScore(),
+                            iJFrameWidth - 190 , iJFrameHeight - 230);
+                }
+                else {
+                   graDibujo.drawString("Main Menu", iJFrameWidth / 2 - 55 ,
+                            60); 
+                }
+                
+                fonFont = new Font("Arial", Font.PLAIN, 15);
+                graDibujo.setFont(fonFont);
+                
+                graDibujo.drawString("Press:", iJFrameWidth - 190 ,
+                        iJFrameHeight - 150);
+                graDibujo.drawString("\'S\' -> Start New Game", 
+                        iJFrameWidth - 190 , iJFrameHeight - 120);
+                graDibujo.drawString("\'M\' -> Main Menu", 
+                        iJFrameWidth - 190 , iJFrameHeight - 100);
+                graDibujo.drawString("\'H\' -> Game Instructions", 
+                        iJFrameWidth - 190, iJFrameHeight - 80);
+                graDibujo.drawString("\'P\' -> Pause Game", 
+                        iJFrameWidth - 190, iJFrameHeight - 60);
+                graDibujo.drawString("\'R\'/\'L\' -> Ball Direction", 
+                        iJFrameWidth - 190, iJFrameHeight - 40);
+                
+                fonFont = new Font("Arial", Font.PLAIN, 15);
+                graDibujo.setFont(fonFont);
         }
         else {
             // if object images are loaded
             if (satPlayer.getImageIcon() != null && satArrBlocks != null &&
-                    !bLoading) {
+                    !bLoading && satBall.getImageIcon() != null && 
+                    satArrBombs != null) {
                 satPlayer.paint(graDibujo, this);
                 paintBlocks(graDibujo, iBlockR, iBlockC);
+                paintBombs(graDibujo);
                 satBall.paint(graDibujo, this);
                 // Paint player's lives
                 graDibujo.setColor(Color.white);
@@ -301,7 +358,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 graDibujo.drawString(String.valueOf("Points: " + 
                         satPlayer.getIScore()), 100, 50);
                 graDibujo.setColor(Color.black);
-            } // Display message if images are not loaded
+            }
+            // Display message if images are not loaded
             else {
                 // Display message while image uploads
                 graDibujo.drawString("No se cargo la imagen..", 20, 20);
@@ -337,6 +395,60 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // terminar juego
         if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {  
             bGameOver = true;
+            bLoading = true;
+            bFirstTime = true;
+            
+            socMainMusic.stop();
+            socMenuMusic.play();
+        }
+        // Open main menu
+        if (keyEvent.getKeyCode() == 'M' && !bFirstTime) {
+            bLoading = !bLoading;
+            
+            // Play main menu music
+            if (bLoading) {
+                socMainMusic.stop();
+                socMenuMusic.play();
+            }
+            // Play main game music
+            else {
+                socMenuMusic.stop();
+                socMainMusic.play();
+            }
+        }
+        
+        // Start new game
+        if (keyEvent.getKeyCode() == 'S' && bLoading) {
+            if (bFirstTime) {
+                bFirstTime = false;
+                bGameOver = false;
+            }
+            
+            // New game player attributes inicialization
+            playerNewGame();
+            // New game blocks attributes inicialization
+            blocksNewGame(iBlockR, iBlockC);
+            // New game ball attributes inicialization
+            ballNewGame(iDifficulty);
+            // Add bombs
+            createBombs();
+            // Add bonuses
+            selectPowerUps(iBlockR, iBlockC);
+            // Add lives to each block
+            selectBlockLives(iBlockR, iBlockC);
+                        
+            bLoading = false;
+            
+            // Play main menu music
+            if (bLoading) {
+                socMainMusic.stop();
+                socMenuMusic.play();
+            }
+            // Play main game music
+            else {
+                socMenuMusic.stop();
+                socMainMusic.play();
+            }
         }
         // se verifica que el juego no este pausado
         if (!bPause) {
@@ -390,7 +502,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     public void ballNewGame(int iDifficulty) {
         satBall.setImageIcon("ball.gif", 30, 30);
         satBall.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
-        satBall.setISpeed((2 * iDifficulty) + 2);
+        satBall.setISpeed((2 * iDifficulty) + 3);
         satBall.setStrName("Ball");
         ballStartPos();
     }
@@ -408,6 +520,27 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     satArrBlocks[iI][iJ].paint(graDibujo, this);
                     showBlockLives(graDibujo, iI, iJ);
                 }
+            }
+        }
+    }
+    
+    public void paintBombs(Graphics graDibujo) {
+        for (int iI = 0; iI < iCantBombs; iI ++) {
+            if(satArrBombs[iI].getBPaint()) {
+                satArrBombs[iI].paint(graDibujo, this);
+            }
+        }
+    }
+    
+    public void intersectBombs() {
+        for (int iI = 0; iI < iCantBombs; iI ++) {
+            if (satPlayer.intersects(satArrBombs[iI])) {
+                satArrBombs[iI].setBehavior(
+                        Saturn086_Object.eBehavior.STOP_RIGHT);
+                satArrBombs[iI].setIPosX(-100);
+                satArrBombs[iI].setIPosY(-100);
+                satPlayer.setImageIcon("bar.png", satPlayer.getWidth() - 
+                        (satPlayer.getWidth() / 8), satPlayer.getHeight());
             }
         }
     }
@@ -496,6 +629,28 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         (satArrBlocks[iR][iC].getHeight() / 2));
     }
     
+    public void createBombs() {
+        for(int iI = 0; iI < iCantBombs; iI ++) {
+            satArrBombs[iI] = new Saturn086_DefaultEnemy();
+            satArrBombs[iI].setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
+            satArrBombs[iI].setImageIcon("Bomb.png", 30, 30);
+            satArrBombs[iI].setISpeed(6);
+            satArrBombs[iI].setStrName("BOMB");
+            satArrBombs[iI].setBPaint(true);
+        }
+    }
+    
+    public void assignBombs(int iR, int iC, int iI) {
+        satArrBombs[iI].setIPosX(satArrBlocks[iR][iC].getIPosX());
+        satArrBombs[iI].setIPosY(satArrBlocks[iR][iC].getIPosY());
+    }
+    
+    public void moveBombs() {
+        for (int iI = 0; iI < iCantBombs; iI ++) {
+            satArrBombs[iI].move();
+        }
+    }
+    
     public void selectPowerUps(int iBlockR, int iBlockC) {
         // Number of bonus generation
         int iBonus = (int) ((Math.random() * 3) + 1);
@@ -525,6 +680,20 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     satArrBlocks[iR][iC].setImageIcon("blue.png", 50, 30);
                     break;
                 }
+            }
+        }
+        
+        // Assign bomb to block
+        for(int iI = 0; iI < iCantBombs; iI++) {
+            iR = (int) (Math.random() * iBlockR); // Row number
+            iC = (int) (Math.random() * iBlockC); // Column number
+            
+            if (satArrBlocks[iR][iC].getStrName().equals("NORMAL")) {
+                satArrBlocks[iR][iC].setStrName("BOMBER");
+                assignBombs(iR, iC, iI);
+            }
+            else {
+                iI--; // Make another round
             }
         }
     }
@@ -592,6 +761,16 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 }
                 case "SPEED": { // Decrease ball speed
                     satBall.setISpeed(satBall.getISpeed() - 1);
+                    break;
+                }
+                case "BOMBER": {
+                    for (int iL = 0; iL < iCantBombs; iL ++) {
+                        if (satArrBlocks[iR][iC].intersects(satArrBombs[iL])) {
+                            satArrBombs[iL].setBehavior(
+                                    Saturn086_Object.eBehavior.STOP_DOWN);
+                            satArrBombs[iL].setBPaint(true);
+                        }
+                    }
                     break;
                 }
             }
