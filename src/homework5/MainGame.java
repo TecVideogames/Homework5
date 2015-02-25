@@ -30,15 +30,16 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private boolean bGameOver;
     private boolean bLoading;
     private boolean bFirstTime;
+    private boolean bWin;
     private int iJFrameWidth;
     private int iJFrameHeight;
+    private int iLevel;
     private int iBlockR;
     private int iBlockC;
     private int iDifficulty;
-    private int iCounterLoading;
+    private int iCounterBlue;
     private int iCantBombs;
     private Image imaImageJFrame;
-    private Image imaImageGameOver;
     private Image imaImageInstructions;
     private ImageIcon imiImageInstructions;
     private Saturn086_Player satPlayer;
@@ -75,8 +76,9 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         iJFrameWidth = 816;
         iBlockR = 3;
         iBlockC = 16;
+        iLevel = 1;
         iDifficulty = 1;
-        iCounterLoading = 100;
+        iCounterBlue = 1500;
         iCantBombs = 5;
         socMainMusic = new SoundClip("Main.wav");
         socMainMusic.setLooping(true);
@@ -98,6 +100,13 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         satBall = new Saturn086_DefaultEnemy();
         satArrBombs = new Saturn086_DefaultEnemy[iCantBombs];
         
+        newGame();
+        
+        //Adds to the JFrame the capability to hear keyboard events
+	addKeyListener(this);
+    }
+    
+    public void newGame() {
         // New game player attributes inicialization
         playerNewGame();
         // New game blocks attributes inicialization
@@ -109,10 +118,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // Add bonuses
         selectPowerUps(iBlockR, iBlockC);
         // Add lives to each block
-        selectBlockLives(iBlockR, iBlockC);
-        
-        //Adds to the JFrame the capability to hear keyboard events
-	addKeyListener(this);
+        selectBlockLives(iBlockR, iBlockC);   
     }
     
     /** 
@@ -147,14 +153,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 checkCollision();
             }
             else {
-                if (bLoading) {
-                    //iCounterLoading--;
-                    if(iCounterLoading == 0) {
-                        bLoading = false;
-                        socMenuMusic.stop();
-                        socMainMusic.play();
-                    }
-                }
                 // Code for menu SERGIO VAS AQUI
             }
             repaint();
@@ -182,6 +180,24 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
         else {
             satBall.move();
+        }
+        
+        if(satPlayer.getILives() <= 0) {
+            bGameOver = true;
+            bLoading = true;
+            bFirstTime = true;
+        }
+        
+        if(!(satPlayer.getIScore() == 0) && 
+                (satPlayer.getIScore() % (iBlockR * iBlockC * 10) == 0)) {
+            bWin = true;
+            iLevel++;
+            int iLives = satPlayer.getILives();
+            int iScore = satPlayer.getIScore();
+            newGame();
+            satPlayer.setILives(iLives);
+            satPlayer.setIScore(iScore + 10);
+            randomFigure(iBlockR, iBlockC); 
         }
     }
     
@@ -325,6 +341,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     graDibujo.setFont(fonFont);
                     graDibujo.drawString("Points: " + satPlayer.getIScore(),
                             iJFrameWidth - 190 , iJFrameHeight - 230);
+                    graDibujo.drawString("Level: " + iLevel,
+                            iJFrameWidth - 190 , iJFrameHeight - 200);
                 }
                 else {
                    graDibujo.drawString("Main Menu", iJFrameWidth / 2 - 55 ,
@@ -366,7 +384,24 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 // Paint player's points
                 graDibujo.drawString(String.valueOf("Points: " + 
                         satPlayer.getIScore()), 100, 50);
+                // Paint level
+                graDibujo.drawString(String.valueOf("Level: " + iLevel) ,
+                        250, 50);
                 graDibujo.setColor(Color.black);
+                
+                if (bPause) {
+                    // Paint Pause
+                    Font fonFont = new Font("Arial", Font.PLAIN, 40);
+                    graDibujo.setFont(fonFont);
+                    graDibujo.setColor(Color.white);
+                    graDibujo.drawString(String.valueOf("GAME PAUSED") ,
+                            iJFrameWidth / 2 - 150, iJFrameHeight / 2 + 50);
+
+                    fonFont = new Font("Arial", Font.PLAIN, 15);
+                    graDibujo.setFont(fonFont);
+                    graDibujo.setColor(Color.black);
+                    
+                }
             }
             // Display message if images are not loaded
             else {
@@ -459,18 +494,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 bGameOver = false;
             }
             
-            // New game player attributes inicialization
-            playerNewGame();
-            // New game blocks attributes inicialization
-            blocksNewGame(iBlockR, iBlockC);
-            // New game ball attributes inicialization
-            ballNewGame(iDifficulty);
-            // Add bombs
-            createBombs();
-            // Add bonuses
-            selectPowerUps(iBlockR, iBlockC);
-            // Add lives to each block
-            selectBlockLives(iBlockR, iBlockC);
+            newGame();
                         
             bLoading = false;
             
@@ -530,6 +554,23 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 satArrBlocks[iI][iJ].setIPosY(iI * 
                         satArrBlocks[iI][iJ].getHeight() + 64);
                 satArrBlocks[iI][iJ].setStrName("NORMAL");
+            }
+        }
+    }
+    
+    public void randomFigure(int iBlockR, int iBlockC) {
+        // Number of blocks that will not be seen
+        int iR;
+        int iC;
+                
+        for (int iI = 0; iI < iBlockR; iI ++) {
+            for (int iJ = 0; iJ < iBlockC; iJ ++) {
+                // Generate random coordinate
+                iR = (int) (Math.random() * iBlockR);
+                iC = (int) (Math.random() * iBlockC);
+                if (satArrBlocks[iR][iC].getStrName().equals("NORMAL")) {
+                    satArrBlocks[iR][iC].setBPaint(false);
+                }
             }
         }
     }
