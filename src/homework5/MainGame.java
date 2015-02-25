@@ -237,10 +237,10 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         for (int iI = 0; iI< lklAnimations.size(); iI ++) {
             Animacion aniFor = (Animacion) lklAnimations.get(iI);
             
-            if( !aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() > 280 ) {
+            if( !aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() > 270 ) {
                 aniFor.setBoolTermina(true);
                 
-            } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() < 280) {
+            } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() < 270) {
             System.out.println(iI+1+" "+aniFor.getTiempoActual());    
                         //Determina el tiempo que ha transcurrido desde que el Applet inicio su ejecución
             long tiempoTranscurrido =
@@ -739,8 +739,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     if (satArrBlocks[iI][iJ].getBPaint()) {
                         // Win points
                         satPlayer.setIScore(satPlayer.getIScore() + 10);
-                        if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
-                                || satArrBlocks[iI][iJ].getStrName() == "BOMBER") {
+//                        if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
+//                                || satArrBlocks[iI][iJ].getStrName() == "BOMBER") {
                         // add animation to linked list
                             aniAux = new Animacion();
                             // edit animation contents
@@ -751,7 +751,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                             aniAux.setPosY(satArrBlocks[iI][iJ].getIPosY());
                             aniAux.setTiempoActual(System.currentTimeMillis());
                             lklAnimations.add(aniAux);
-                        }
+                        //}
                         if (satArrBlocks[iI][iJ].getILives() > 0) {
                             checkPowerUps(iI, iJ);
                             satArrBlocks[iI][iJ].setILives(
