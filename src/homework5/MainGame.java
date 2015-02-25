@@ -19,6 +19,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.net.URL;
+import java.util.LinkedList;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -48,6 +49,32 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private Saturn086_DefaultEnemy satBall;
     private Saturn086_DefaultEnemy[] satArrBombs;
     private Graphics graGraficsJFrame; // Graphic objects of the image
+    private LinkedList lklAnimations;
+    private Animacion aniAux;
+    // BOOM animation images
+    Image imaBoom0;
+    Image imaBoom1;
+    Image imaBoom2;
+    Image imaBoom3;
+    Image imaBoom4;
+    Image imaBoom5;
+    Image imaBoom6;
+    Image imaBoom7;
+    Image imaBoom8;
+    Image imaBoom9;
+    Image imaBoom10;
+    Image imaBoom11;
+    Image imaBoom12;
+    Image imaBoom13;
+    Image imaBoom14;
+    
+    // BLOCK animation images
+    Image imaBlock0;
+    Image imaBlock1;
+    Image imaBlock2;
+    
+    // tiempo
+    private long tiempoActual;
     private SoundClip socMainMusic;
     private SoundClip socMenuMusic;
     
@@ -81,6 +108,33 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         iLevel = 1;
         iDifficulty = 1;
         iCounterBlue = 500;
+        
+        // animations images
+        //Se cargan las imágenes(cuadros) para la animación de BOOM
+        imaBoom0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-0.gif"));
+        imaBoom1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-1.gif"));
+        imaBoom2 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-2.gif"));
+        imaBoom3 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-3.gif"));
+        imaBoom4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-4.gif"));
+        imaBoom5 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-5.gif"));
+        imaBoom6 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-6.gif"));
+        imaBoom7 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-7.gif"));
+        imaBoom8 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-8.gif"));
+        imaBoom9 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-9.gif"));
+        imaBoom10 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-10.gif"));
+        imaBoom11 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-11.gif"));
+        imaBoom12 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-12.gif"));
+        imaBoom13 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-13.gif"));
+        imaBoom14 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-14.gif"));
+        
+        //Se cargan las imágenes(cuadros) para la animación de BOOM
+        imaBlock0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_000.gif"));
+        imaBlock1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_001.gif"));
+        imaBlock2 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_002.gif"));
+        
+        // initialized animations linked list
+        lklAnimations = new LinkedList<Animacion>();
+
         iCantBombs = 5;
         socMainMusic = new SoundClip("Main.wav");
         socMainMusic.setLooping(true);
@@ -93,6 +147,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         imaImageInstructions = imaImageInstructions.getScaledInstance(100, 140,
                 java.awt.Image.SCALE_DEFAULT);
         imiImageInstructions = new ImageIcon(imaImageInstructions);
+
         // Set JFrame size
         setSize(iJFrameWidth, iJFrameHeight);
         
@@ -148,7 +203,9 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
      * instructions
      */
     @Override
-    public void run() {        
+    public void run() {  
+        
+        tiempoActual = System.currentTimeMillis();
         // The Game cycle never stops until the game is exited
         while (true) { 
             // if game is not paused or lost continue with normal game execution
@@ -178,6 +235,43 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
      */
     public void actualize() {
         satPlayer.move();
+        satBall.move();
+        
+        // updateAnimations
+        for (int iI = 0; iI< lklAnimations.size(); iI ++) {
+            Animacion aniFor = (Animacion) lklAnimations.get(iI);
+            
+            if( !aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() > 280 ) {
+                aniFor.setBoolTermina(true);
+                
+            } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() < 280) {
+            System.out.println(iI+1+" "+aniFor.getTiempoActual());    
+                        //Determina el tiempo que ha transcurrido desde que el Applet inicio su ejecución
+            long tiempoTranscurrido =
+                System.currentTimeMillis() - aniFor.getTiempoActual();
+
+//            //Guarda el tiempo actual
+//            tiempoActual += tiempoTranscurrido;
+            aniFor.setTiempoActual( aniFor.getTiempoActual() + tiempoTranscurrido );
+            aniFor.actualiza(tiempoTranscurrido);
+//            //Actualiza la animación en base al tiempo transcurrido
+//            anim.actualiza(tiempoTranscurrido);
+//            if( anim.getTiempoDeAnimacion() > 1000){
+//                anim = null;
+//            }
+//                
+//                
+//                
+//                long tiempoTranscurrido =
+//                System.currentTimeMillis() - tiempoActual;
+//
+//            //Guarda el tiempo 
+//                if(!aniFor.getBoolTermina())
+//            aniFor.actualiza(tiempoTranscurrido);
+//            tiempoActual += tiempoTranscurrido;
+            }
+        }
+        
         moveBombs();
         
         if (bBluePower) {
@@ -294,8 +388,13 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         intersectBlocks(iBlockR, iBlockC);
         // Collision with player
         intersectPlayer();
+
+        // Run animation
+        // TODO
+
         // Collision with falling bombs
         intersectBombs();
+
     }
     
     /**
@@ -405,6 +504,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 // Paint player's points
                 graDibujo.drawString(String.valueOf("Points: " + 
                         satPlayer.getIScore()), 100, 50);
+                
                 // Paint level
                 graDibujo.drawString(String.valueOf("Level: " + iLevel) ,
                         250, 50);
@@ -417,6 +517,16 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 graDibujo.drawString(String.valueOf(iBlockCant) ,
                         500, 50);
                 graDibujo.setColor(Color.black);
+                
+                // Paint animations
+                if( lklAnimations != null ){
+                    for (Object objAux : lklAnimations) {
+                        Animacion aniAux = (Animacion) objAux;
+                        if (aniAux != null && !aniAux.getBoolTermina()) {
+                             graDibujo.drawImage(aniAux.getImagen(), (int) aniAux.getPosX(), (int) aniAux.getPosY(), this);
+                        } 
+                    }
+                }
                 
                 if (bPause) {
                     // Paint Pause
@@ -431,12 +541,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     graDibujo.setColor(Color.black);
                 }
             }
-            // Display message if images are not loaded
             else {
-                // Display message while image uploads
+                // Display message if images are not loaded
                 graDibujo.drawString("No se cargo la imagen..", 20, 20);
-            }
-        }
+            }    
+        }         
     }
 
     @Override
@@ -631,7 +740,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     public void ballNewGame(int iDifficulty) {
         satBall.setImageIcon("ball.gif", 30, 30);
         satBall.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
-        satBall.setISpeed((2 * iDifficulty) + 3);
+        satBall.setISpeed((2 * iDifficulty) + 1);
         satBall.setStrName("Ball");
         ballStartPos();
     }
@@ -679,8 +788,23 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             for (int iJ = 0; iJ < iBlockC; iJ ++) {
                 // Eliminate block if lives get to 0
                 if (satArrBlocks[iI][iJ].intersects(satBall)) {
+                                    
                     if (satArrBlocks[iI][iJ].getBPaint()) {
                         // Win points
+                        satPlayer.setIScore(satPlayer.getIScore() + 10);
+                        if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
+                                || satArrBlocks[iI][iJ].getStrName() == "BOMBER") {
+                        // add animation to linked list
+                            aniAux = new Animacion();
+                            // edit animation contents
+                            aniAux.sumaCuadro(imaBlock0, 100);
+                            aniAux.sumaCuadro(imaBlock1, 100);
+                            aniAux.sumaCuadro(imaBlock2, 100);
+                            aniAux.setPosX(satArrBlocks[iI][iJ].getIPosX());
+                            aniAux.setPosY(satArrBlocks[iI][iJ].getIPosY());
+                            aniAux.setTiempoActual(System.currentTimeMillis());
+                            lklAnimations.add(aniAux);
+                        }
                         if (satArrBlocks[iI][iJ].getILives() > 0) {
                             checkPowerUps(iI, iJ);
                             satArrBlocks[iI][iJ].setILives(
@@ -721,6 +845,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             }
         }
     }
+        
     
     public void intersectPlayer() {
         // Ball bounces on upper part
@@ -841,7 +966,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     break;
                 }
                 case "BOOM": { // Destroy surrounding blocks
-                    
                     if(iR != 0) { // If not in upper row
                         iR2--;
                     }
