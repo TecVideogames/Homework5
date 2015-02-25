@@ -19,7 +19,9 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.net.URL;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class MainGame extends JFrame implements Runnable, KeyListener {
 
@@ -37,6 +39,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private int iCantBombs;
     private Image imaImageJFrame;
     private Image imaImageGameOver;
+    private Image imaImageInstructions;
+    private ImageIcon imiImageInstructions;
     private Saturn086_Player satPlayer;
     private Saturn086_DefaultEnemy[][] satArrBlocks;
     private Saturn086_DefaultEnemy satBall;
@@ -80,6 +84,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         socMenuMusic.setLooping(true);
         socMainMusic.stop();
         socMenuMusic.play();
+        imaImageInstructions = Toolkit.getDefaultToolkit().
+                getImage(this.getClass().getResource("ImageInstructions.png"));
+        imaImageInstructions = imaImageInstructions.getScaledInstance(100, 140,
+                java.awt.Image.SCALE_DEFAULT);
+        imiImageInstructions = new ImageIcon(imaImageInstructions);
         // Set JFrame size
         setSize(iJFrameWidth, iJFrameHeight);
         
@@ -415,6 +424,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 socMenuMusic.stop();
                 socMainMusic.play();
             }
+        }
+        
+        if(bLoading && keyEvent.getKeyCode() == 'H') {
+            JOptionPane.showMessageDialog(this, "Breaking Bad", "Instructions",
+                    JOptionPane.PLAIN_MESSAGE, imiImageInstructions);
         }
         
         // Start new game
