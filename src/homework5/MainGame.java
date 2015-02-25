@@ -31,7 +31,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private boolean bGameOver;
     private boolean bLoading;
     private boolean bFirstTime;
-    private boolean bWin;
+    private boolean bBluePower;
     private int iJFrameWidth;
     private int iJFrameHeight;
     private int iLevel;
@@ -40,6 +40,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private int iDifficulty;
     private int iCounterBlue;
     private int iCantBombs;
+    private int iBlockCant;
     private Image imaImageJFrame;
     private Image imaImageInstructions;
     private ImageIcon imiImageInstructions;
@@ -99,12 +100,14 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         bPause = false;
         bLoading = true;
         bFirstTime = true;
+        bBluePower = false;
         iJFrameHeight = 600;
         iJFrameWidth = 816;
         iBlockR = 3;
         iBlockC = 16;
         iLevel = 1;
         iDifficulty = 1;
+        iCounterBlue = 500;
         
         // animations images
         //Se cargan las imágenes(cuadros) para la animación de BOOM
@@ -132,7 +135,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // initialized animations linked list
         lklAnimations = new LinkedList<Animacion>();
 
-        iCounterBlue = 1500;
         iCantBombs = 5;
         socMainMusic = new SoundClip("Main.wav");
         socMainMusic.setLooping(true);
@@ -173,7 +175,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // Add bonuses
         selectPowerUps(iBlockR, iBlockC);
         // Add lives to each block
-        selectBlockLives(iBlockR, iBlockC);   
+        selectBlockLives(iBlockR, iBlockC); 
+        // Select number of blocks to show
+        iBlockCant = numberOfBlocks();
+        // Select how many blocks will be shown ér level
+        randomFigure(iBlockR, iBlockC);
     }
     
     /** 
@@ -269,6 +275,17 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
         
         moveBombs();
+        
+        if (bBluePower) {
+            iCounterBlue--;
+            
+            if(iCounterBlue <= 0) {
+                bBluePower = false;
+                satBall.setISpeed(satBall.getISpeed() - 3);
+                iCounterBlue = 500;
+            }
+        }
+        
         if (satBall.getBehavior() == Saturn086_Object.eBehavior.STOP_RIGHT) {
             ballStartPos();
         }
@@ -283,14 +300,15 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
         
         if(!(satPlayer.getIScore() == 0) && 
-                (satPlayer.getIScore() % (iBlockR * iBlockC * 10) == 0)) {
-            bWin = true;
+                (satPlayer.getIScore() % (iBlockCant
+                * 10) == 0)) {
             iLevel++;
             int iLives = satPlayer.getILives();
             int iScore = satPlayer.getIScore();
             newGame();
             satPlayer.setILives(iLives);
             satPlayer.setIScore(iScore + 10);
+            iBlockCant = numberOfBlocks() + 10;
             randomFigure(iBlockR, iBlockC); 
         }
     }
@@ -361,16 +379,18 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             satBall.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
             // Player looses 1 live
             satPlayer.setILives(satPlayer.getILives() - 1);
+            // Used to reset blue power values
+            if (bBluePower == true) {
+                bBluePower = false;
+                satBall.setISpeed(satBall.getISpeed() - 3);
+                iCounterBlue = 500;
+            }
         }
         
         // Collision with blocks
         intersectBlocks(iBlockR, iBlockC);
         // Collision with player
         intersectPlayer();
-
-        // Run animation
-        // TODO
-
         // Collision with falling bombs
         intersectBombs();
 
@@ -487,6 +507,14 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 // Paint level
                 graDibujo.drawString(String.valueOf("Level: " + iLevel) ,
                         250, 50);
+                // Paint time counter for BLUE power
+                // Paint level
+                graDibujo.drawString(String.valueOf("Time left: " + 
+                        (iCounterBlue / 50) + " sec.") ,
+                        350, 50);
+                
+                graDibujo.drawString(String.valueOf(iBlockCant) ,
+                        500, 50);
                 graDibujo.setColor(Color.black);
                 
                 // Paint animations
@@ -510,7 +538,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     fonFont = new Font("Arial", Font.PLAIN, 15);
                     graDibujo.setFont(fonFont);
                     graDibujo.setColor(Color.black);
-                    
                 }
             }
             else {
@@ -601,6 +628,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             if (bFirstTime) {
                 bFirstTime = false;
                 bGameOver = false;
+                bBluePower = false;
             }
             
             newGame();
@@ -663,31 +691,37 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 satArrBlocks[iI][iJ].setIPosY(iI * 
                         satArrBlocks[iI][iJ].getHeight() + 64);
                 satArrBlocks[iI][iJ].setStrName("NORMAL");
+                satArrBlocks[iI][iJ].setBPaint(false);
             }
         }
     }
     
+    public int numberOfBlocks() {
+       int iCant = iLevel * 5; 
+       
+       if (iCant > (iBlockR * iBlockC)) {
+            iCant = (iBlockR * iBlockC);
+       }
+       
+       return iCant;
+    }
+    
     public void randomFigure(int iBlockR, int iBlockC) {
-        // Number of blocks that will not be seen
         int iR;
         int iC;
-                
-        for (int iI = 0; iI < iBlockR; iI ++) {
-            for (int iJ = 0; iJ < iBlockC; iJ ++) {
-                // Generate random coordinate
-                iR = (int) (Math.random() * iBlockR);
-                iC = (int) (Math.random() * iBlockC);
-                if (satArrBlocks[iR][iC].getStrName().equals("NORMAL")) {
-                    satArrBlocks[iR][iC].setBPaint(false);
-                }
-            }
+        
+        // Generate random coordinate
+        for (int iK = 0; iK < numberOfBlocks(); iK ++) {
+            iR = (int) (Math.random() * iBlockR);
+            iC = (int) (Math.random() * iBlockC);
+            satArrBlocks[iR][iC].setBPaint(true);
         }
     }
     
     public void ballNewGame(int iDifficulty) {
         satBall.setImageIcon("ball.gif", 30, 30);
         satBall.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
-        satBall.setISpeed((2 * iDifficulty) + 3);
+        satBall.setISpeed((2 * iDifficulty) + 1);
         satBall.setStrName("Ball");
         ballStartPos();
     }
@@ -738,9 +772,15 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                                     
                     if (satArrBlocks[iI][iJ].getBPaint()) {
                         // Win points
+
                         satPlayer.setIScore(satPlayer.getIScore() + 10);
 //                        if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
 //                                || satArrBlocks[iI][iJ].getStrName() == "BOMBER") {
+
+                        //satPlayer.setIScore(satPlayer.getIScore() + 10);
+                        if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
+                                || satArrBlocks[iI][iJ].getStrName() == "BOMBER") {
+
                         // add animation to linked list
                             aniAux = new Animacion();
                             // edit animation contents
@@ -751,7 +791,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                             aniAux.setPosY(satArrBlocks[iI][iJ].getIPosY());
                             aniAux.setTiempoActual(System.currentTimeMillis());
                             lklAnimations.add(aniAux);
-                        //}
+                        }
+
                         if (satArrBlocks[iI][iJ].getILives() > 0) {
                             checkPowerUps(iI, iJ);
                             satArrBlocks[iI][iJ].setILives(
@@ -913,29 +954,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     break;
                 }
                 case "BOOM": { // Destroy surrounding blocks
-                    // add animation to linked list
-//                    aniAux = new Animacion();
-//                    // edit animation contents
-//                    aniAux.sumaCuadro(imaBoom0, 20);
-//                    aniAux.sumaCuadro(imaBoom1, 20);
-//                    aniAux.sumaCuadro(imaBoom2, 20);
-//                    aniAux.sumaCuadro(imaBoom3, 20);
-//                    aniAux.sumaCuadro(imaBoom4, 20);
-//                    aniAux.sumaCuadro(imaBoom5, 20);
-//                    aniAux.sumaCuadro(imaBoom6, 20);
-//                    aniAux.sumaCuadro(imaBoom7, 20);
-//                    aniAux.sumaCuadro(imaBoom8, 20);
-//                    aniAux.sumaCuadro(imaBoom9, 20);
-//                    aniAux.sumaCuadro(imaBoom10, 20);
-//                    aniAux.sumaCuadro(imaBoom11, 20);
-//                    aniAux.sumaCuadro(imaBoom12, 20);
-//                    aniAux.sumaCuadro(imaBoom13, 20);
-//                    aniAux.sumaCuadro(imaBoom14, 20);
-//                    aniAux.setPosX(satArrBlocks[iR][iC].getIPosX());
-//                    aniAux.setPosY(satArrBlocks[iR][iC].getIPosY());
-//                    aniAux.setTiempoActual(System.currentTimeMillis());
-//                    lklAnimations.add(aniAux);
-                    
                     if(iR != 0) { // If not in upper row
                         iR2--;
                     }
@@ -983,7 +1001,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     break;
                 }
                 case "SPEED": { // Decrease ball speed
-                    satBall.setISpeed(satBall.getISpeed() - 1);
+                    satBall.setISpeed(satBall.getISpeed() + 3);
+                    bBluePower = true;
                     break;
                 }
                 case "BOMBER": {
