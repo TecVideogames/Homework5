@@ -178,6 +178,32 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         aniBarRed.setPosY(0);
         aniBarRed.setTiempoActual(System.currentTimeMillis());
         
+        // Create bar animations
+        // green
+        aniBarGreen = new Animacion();
+        aniBarGreen.sumaCuadro(imaGreen0, 300);
+        aniBarGreen.sumaCuadro(imaGreen1, 300);
+        aniBarGreen.sumaCuadro(imaGreen2, 300);
+        aniBarGreen.setPosX(0);
+        aniBarGreen.setPosY(0);
+        aniBarGreen.setTiempoActual(System.currentTimeMillis());
+        // yellow
+        aniBarYellow = new Animacion();
+        aniBarYellow.sumaCuadro(imaYellow0, 300);
+        aniBarYellow.sumaCuadro(imaYellow1, 300);
+        aniBarYellow.sumaCuadro(imaYellow2, 300);
+        aniBarYellow.setPosX(0);
+        aniBarYellow.setPosY(0);
+        aniBarYellow.setTiempoActual(System.currentTimeMillis());
+        // green
+        aniBarRed = new Animacion();
+        aniBarRed.sumaCuadro(imaRed0, 300);
+        aniBarRed.sumaCuadro(imaRed1, 300);
+        aniBarRed.sumaCuadro(imaRed2, 300);
+        aniBarRed.setPosX(0);
+        aniBarRed.setPosY(0);
+        aniBarRed.setTiempoActual(System.currentTimeMillis());
+        
         // initialized animations linked list
         lklAnimations = new LinkedList<Animacion>();
 
@@ -272,6 +298,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 try {
                     JDialogScore.updateRanking(null,satPlayer.getIScore(),
                             "puntuaciones.txt");
+
                 } catch (IOException ioeError) {
                      System.out.println("Hubo un error en lectura de archivo" + 
                             ioeError.toString());
@@ -314,6 +341,21 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             aniBarRed.actualiza(tiempoTranscurrido);
         }
         
+        if(aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
+                    //Determina el tiempo que ha transcurrido desde que el Applet inicio su ejecución
+            long tiempoTranscurrido =
+                System.currentTimeMillis() - tiempoActual;
+
+            //Guarda el tiempo actual
+            tiempoActual += tiempoTranscurrido;
+
+            //Actualiza la animación en base al tiempo transcurrido
+            aniBarGreen.actualiza(tiempoTranscurrido);
+            aniBarYellow.actualiza(tiempoTranscurrido);
+            aniBarRed.actualiza(tiempoTranscurrido);
+            
+        }
+        
         // updateAnimations
         for (int iI = 0; iI< lklAnimations.size(); iI ++) {
             Animacion aniFor = (Animacion) lklAnimations.get(iI);
@@ -324,6 +366,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 
             } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() 
                     < 270) {
+
             System.out.println(iI+1+" "+aniFor.getTiempoActual());    
                         //Time since the JFrame's execution
             long tiempoTranscurrido =
@@ -981,6 +1024,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         if (satArrBlocks[iI][iJ].getStrName().equals("NORMAL")
                                 || satArrBlocks[iI][iJ].getStrName().
                                         equals("BOMBER")) {
+
                             socBlock.play();
                         }
                         
@@ -1297,6 +1341,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                             satArrBombs[iL].setBPaint(true);
                         }
                     }
+                    socExplosion.play();
                     break;
                 }
             }
