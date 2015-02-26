@@ -5,7 +5,7 @@
  * 
  * @author Marco Antonio Peyrot A00815262
  * @author Mario Sergio Fuentes AA01036141
- * @version 2.3
+ * @version 4.2
  * @date 23/02/2015
  */
 
@@ -18,6 +18,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import javax.swing.ImageIcon;
@@ -32,6 +33,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private boolean bLoading;
     private boolean bFirstTime;
     private boolean bBluePower;
+    private boolean bScores;
     private int iJFrameWidth;
     private int iJFrameHeight;
     private int iLevel;
@@ -40,7 +42,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private int iDifficulty;
     private int iCounterBlue;
     private int iCantBombs;
-    private int iBlockCant;
     private Image imaImageJFrame;
     private Image imaImageInstructions;
     private ImageIcon imiImageInstructions;
@@ -51,32 +52,40 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private Graphics graGraficsJFrame; // Graphic objects of the image
     private LinkedList lklAnimations;
     private Animacion aniAux;
-    // BOOM animation images
-    Image imaBoom0;
-    Image imaBoom1;
-    Image imaBoom2;
-    Image imaBoom3;
-    Image imaBoom4;
-    Image imaBoom5;
-    Image imaBoom6;
-    Image imaBoom7;
-    Image imaBoom8;
-    Image imaBoom9;
-    Image imaBoom10;
-    Image imaBoom11;
-    Image imaBoom12;
-    Image imaBoom13;
-    Image imaBoom14;
+    private Animacion aniBarGreen;
+    private Animacion aniBarYellow;
+    private Animacion aniBarRed;
+    
+    // green bar images
+    Image imaGreen0;
+    Image imaGreen1;
+    Image imaGreen2;
+    
+    // yellow bar images
+    Image imaYellow0;
+    Image imaYellow1;
+    Image imaYellow2;
+    
+    // green bar images
+    Image imaRed0;
+    Image imaRed1;
+    Image imaRed2;
     
     // BLOCK animation images
     Image imaBlock0;
     Image imaBlock1;
     Image imaBlock2;
     
-    // tiempo
+    // starting time
     private long tiempoActual;
+    
+    // sounds
     private SoundClip socMainMusic;
     private SoundClip socMenuMusic;
+    private SoundClip socLife;
+    private SoundClip socExplosion;
+    private SoundClip socSpeed;
+    private SoundClip socBlock;
     
     /**
      * MainGame
@@ -101,6 +110,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         bLoading = true;
         bFirstTime = true;
         bBluePower = false;
+        bScores = false;
         iJFrameHeight = 600;
         iJFrameWidth = 816;
         iBlockR = 3;
@@ -108,33 +118,70 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         iLevel = 1;
         iDifficulty = 1;
         iCounterBlue = 500;
-        
+              
         // animations images
-        //Se cargan las imágenes(cuadros) para la animación de BOOM
-        imaBoom0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-0.gif"));
-        imaBoom1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-1.gif"));
-        imaBoom2 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-2.gif"));
-        imaBoom3 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-3.gif"));
-        imaBoom4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-4.gif"));
-        imaBoom5 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-5.gif"));
-        imaBoom6 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-6.gif"));
-        imaBoom7 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-7.gif"));
-        imaBoom8 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-8.gif"));
-        imaBoom9 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-9.gif"));
-        imaBoom10 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-10.gif"));
-        imaBoom11 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-11.gif"));
-        imaBoom12 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-12.gif"));
-        imaBoom13 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-13.gif"));
-        imaBoom14 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("tmp-14.gif"));
+               
+        //loading color bar images
+        // green
+        imaGreen0 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("verde1.png"));
+        imaGreen1 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("verde2.png"));
+        imaGreen2 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("verde3.png"));
+        // yellow
+        imaYellow0 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("yellow1.png"));
+        imaYellow1 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("yellow2.png"));
+        imaYellow2 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("yellow3.png"));
+        // red
+        imaRed0 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("rojo1.png"));
+        imaRed1 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("rojo2.png"));
+        imaRed2 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("rojo3.png"));
         
-        //Se cargan las imágenes(cuadros) para la animación de BOOM
-        imaBlock0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_000.gif"));
-        imaBlock1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_001.gif"));
-        imaBlock2 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("frame_002.gif"));
+        // loading boom images
+        imaBlock0 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("frame_000.gif"));
+        imaBlock1 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("frame_001.gif"));
+        imaBlock2 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("frame_002.gif"));
+        
+        // Create bar animations
+        // green
+        aniBarGreen = new Animacion();
+        aniBarGreen.sumaCuadro(imaGreen0, 300);
+        aniBarGreen.sumaCuadro(imaGreen1, 300);
+        aniBarGreen.sumaCuadro(imaGreen2, 300);
+        aniBarGreen.setPosX(0);
+        aniBarGreen.setPosY(0);
+        aniBarGreen.setTiempoActual(System.currentTimeMillis());
+        // yellow
+        aniBarYellow = new Animacion();
+        aniBarYellow.sumaCuadro(imaYellow0, 300);
+        aniBarYellow.sumaCuadro(imaYellow1, 300);
+        aniBarYellow.sumaCuadro(imaYellow2, 300);
+        aniBarYellow.setPosX(0);
+        aniBarYellow.setPosY(0);
+        aniBarYellow.setTiempoActual(System.currentTimeMillis());
+        // green
+        aniBarRed = new Animacion();
+        aniBarRed.sumaCuadro(imaRed0, 300);
+        aniBarRed.sumaCuadro(imaRed1, 300);
+        aniBarRed.sumaCuadro(imaRed2, 300);
+        aniBarRed.setPosX(0);
+        aniBarRed.setPosY(0);
+        aniBarRed.setTiempoActual(System.currentTimeMillis());
         
         // initialized animations linked list
         lklAnimations = new LinkedList<Animacion>();
 
+        // sound settings
         iCantBombs = 5; // Number of bombs that appear in each level
         socMainMusic = new SoundClip("Menu.wav"); // Assign music file
         socMainMusic.setLooping(true); // Play forever
@@ -142,6 +189,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         socMenuMusic.setLooping(true); // Play forever
         socMainMusic.stop(); // Stop music from playing
         socMenuMusic.play(); // Play Main menu music
+        socLife = new SoundClip("life.wav"); // Sound for life bonus
+        socExplosion = new SoundClip("Bomb.wav"); // Sound for explosion bonus
+        socSpeed = new SoundClip("speed.wav"); // Sound for speed bonus
+        socBlock = new SoundClip("coin.wav"); // Sound for normal block
+
         // Load instruction's image
         imaImageInstructions = Toolkit.getDefaultToolkit().
                 getImage(this.getClass().getResource("ImageInstructions.png"));
@@ -179,8 +231,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         selectPowerUps(iBlockR, iBlockC);
         // Add lives to each block
         selectBlockLives(iBlockR, iBlockC); 
-        // Select number of blocks to show
-        iBlockCant = numberOfBlocks();
         // Select how many blocks will be shown ér level
         randomFigure(iBlockR, iBlockC);
     }
@@ -218,7 +268,16 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 actualize();
                 checkCollision();
             }
-            
+            if (bScores) {
+                try {
+                    JDialogScore.updateRanking(null,satPlayer.getIScore(),
+                            "puntuaciones.txt");
+                } catch (IOException ioeError) {
+                     System.out.println("Hubo un error en lectura de archivo" + 
+                            ioeError.toString());
+                }
+                bScores = false;
+            }
             repaint();
             try	{
                 // El thread se duerme.
@@ -240,38 +299,39 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         satPlayer.move(); // Move bar
         satBall.move(); // Move ball
         
+        if(aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
+                    //Determina el tiempo que ha transcurrido desde que el
+                    //Applet inicio su ejecución
+            long tiempoTranscurrido =
+                System.currentTimeMillis() - tiempoActual;
+
+            //Guarda el tiempo actual
+            tiempoActual += tiempoTranscurrido;
+
+            //Actualiza la animación en base al tiempo transcurrido
+            aniBarGreen.actualiza(tiempoTranscurrido);
+            aniBarYellow.actualiza(tiempoTranscurrido);
+            aniBarRed.actualiza(tiempoTranscurrido);
+        }
+        
         // updateAnimations
         for (int iI = 0; iI< lklAnimations.size(); iI ++) {
             Animacion aniFor = (Animacion) lklAnimations.get(iI);
             
-            if( !aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() > 280 ) {
+            if( !aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() > 
+                    270 ) {
                 aniFor.setBoolTermina(true);
                 
-            } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() < 280) {
+            } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() 
+                    < 270) {
             System.out.println(iI+1+" "+aniFor.getTiempoActual());    
-                        //Determina el tiempo que ha transcurrido desde que el Applet inicio su ejecución
+                        //Time since the JFrame's execution
             long tiempoTranscurrido =
                 System.currentTimeMillis() - aniFor.getTiempoActual();
 
-//            //Guarda el tiempo actual
-//            tiempoActual += tiempoTranscurrido;
-            aniFor.setTiempoActual( aniFor.getTiempoActual() + tiempoTranscurrido );
+            aniFor.setTiempoActual( aniFor.getTiempoActual() + 
+                    tiempoTranscurrido );
             aniFor.actualiza(tiempoTranscurrido);
-//            //Actualiza la animación en base al tiempo transcurrido
-//            anim.actualiza(tiempoTranscurrido);
-//            if( anim.getTiempoDeAnimacion() > 1000){
-//                anim = null;
-//            }
-//                
-//                
-//                
-//                long tiempoTranscurrido =
-//                System.currentTimeMillis() - tiempoActual;
-//
-//            //Guarda el tiempo 
-//                if(!aniFor.getBoolTermina())
-//            aniFor.actualiza(tiempoTranscurrido);
-//            tiempoActual += tiempoTranscurrido;
             }
         }
         
@@ -412,6 +472,9 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 satBall.setISpeed(satBall.getISpeed() - 3);
                 iCounterBlue = 500;
             }
+            if (satPlayer.getILives() == 0) {
+                bScores = true;
+            }
         }
         
         // Collision with blocks
@@ -521,7 +584,17 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             if (satPlayer.getImageIcon() != null && satArrBlocks != null &&
                     !bLoading && satBall.getImageIcon() != null && 
                     satArrBombs != null) {
+                // change player icon depending on lives status
+                if (satPlayer.getILives() > 2) {
+                    satPlayer.setImage(aniBarGreen.getImagen());
+                } else if (satPlayer.getILives() == 2) {
+                    satPlayer.setImage(aniBarYellow.getImagen());
+                } else {
+                    satPlayer.setImage(aniBarRed.getImagen());
+                }
                 satPlayer.paint(graDibujo, this);
+                //System.out.println(iWidthBar + " " + iHeightBar);
+                              
                 paintBlocks(graDibujo, iBlockR, iBlockC);
                 paintBombs(graDibujo);
                 satBall.paint(graDibujo, this);
@@ -664,12 +737,12 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     + "the right by pressing \'R\' or \'L\'.\n\n"
                     + "Walter is tricky sometimes, so be careful with\n"
                     + "some bombs he has hidden in his cargo, if they\n"
-                    + "touch the bar, the bar is reduced in size.\n\n"
+                    + "touch the bar, you loose a life (and cry).\n\n"
                     + "Each anfetamine destroyed grants you 10 points\n"
                     + "Each one has a number representing its resistance,\n"
                     + "in other words, the number of hits required to\n"
                     + "destroy it. A PINK anfetamine grants you a life,\n"
-                    + "a BLUE anfetamine accelerates your throws for 30 sec.,\n"
+                    + "a BLUE anfetamine accelerates your throws for 10 sec.,\n"
                     + "a GREEN anfetamine is a glitchy bomb that will explode\n"
                     + "on contact and destroy all surrounding anfetamines.\n\n"
                     + "The game ends when all lives are lost or all\n"
@@ -795,7 +868,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         int iC;
         
         // Generate random coordinate
-        for (int iK = 0; iK < numberOfBlocks() - (satPlayer.getIScore() / 2); iK ++) {
+        for (int iK = 0; iK < numberOfBlocks() - (satPlayer.getIScore() / 2); 
+                iK ++) {
             iR = (int) (Math.random() * iBlockR);
             iC = (int) (Math.random() * iBlockC);
             satArrBlocks[iR][iC].setBPaint(true);
@@ -875,8 +949,12 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         Saturn086_Object.eBehavior.STOP_RIGHT);
                 satArrBombs[iI].setIPosX(-100);
                 satArrBombs[iI].setIPosY(-100);
-                satPlayer.setImageIcon("bar.png", satPlayer.getWidth() - 
-                        (satPlayer.getWidth() / 8), satPlayer.getHeight());
+                //iWidthBar = iWidthBar - (iWidthBar / 8);
+                satPlayer.setILives(satPlayer.getILives() - 1);
+                socExplosion.play();
+                //satPlayer.resizeImageIcon(iWidthBar, iHeightBar);
+                //satPlayer.marginContainer(iWidthBar, iHeightBar);
+                
             }
         }
     }
@@ -897,22 +975,26 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                                     
                     if (satArrBlocks[iI][iJ].getBPaint()) {
                         // Win points
-                        //satPlayer.setIScore(satPlayer.getIScore() + 10);
-                        if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
-                                || satArrBlocks[iI][iJ].getStrName() == 
-                                "BOMBER") {
-                        // add animation to linked list
-                            aniAux = new Animacion();
-                            // edit animation contents
-                            aniAux.sumaCuadro(imaBlock0, 100);
-                            aniAux.sumaCuadro(imaBlock1, 100);
-                            aniAux.sumaCuadro(imaBlock2, 100);
-                            aniAux.setPosX(satArrBlocks[iI][iJ].getIPosX());
-                            aniAux.setPosY(satArrBlocks[iI][iJ].getIPosY());
-                            aniAux.setTiempoActual(System.currentTimeMillis());
-                            lklAnimations.add(aniAux);
+
+                        satPlayer.setIScore(satPlayer.getIScore() + 10);
+
+                        if (satArrBlocks[iI][iJ].getStrName().equals("NORMAL")
+                                || satArrBlocks[iI][iJ].getStrName().
+                                        equals("BOMBER")) {
+                            socBlock.play();
                         }
-                        // Check to see if block has a power up
+                        
+                        // add animation to linked list
+                        aniAux = new Animacion();
+                        // edit animation contents
+                        aniAux.sumaCuadro(imaBlock0, 100);
+                        aniAux.sumaCuadro(imaBlock1, 100);
+                        aniAux.sumaCuadro(imaBlock2, 100);
+                        aniAux.setPosX(satArrBlocks[iI][iJ].getIPosX());
+                        aniAux.setPosY(satArrBlocks[iI][iJ].getIPosY());
+                        aniAux.setTiempoActual(System.currentTimeMillis());
+                        lklAnimations.add(aniAux);
+
                         if (satArrBlocks[iI][iJ].getILives() > 0) {
                             checkPowerUps(iI, iJ);
                             satArrBlocks[iI][iJ].setILives(
@@ -1151,6 +1233,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             switch(satArrBlocks[iR][iC].getStrName()) {
                 case "LIFE": { // Add life to player
                     satPlayer.setILives(satPlayer.getILives() + 1);
+                    socLife.play();
                     break;
                 }
                 case "BOOM": { // Destroy surrounding blocks
@@ -1163,7 +1246,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     if(iC != iBlockC - 1) { // If not in right side
                         iILimit++;
                     }
-                    
+                    socExplosion.play();
                     iJ = iI;
                     iK = iI;
                     
@@ -1203,6 +1286,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 case "SPEED": { // Decrease ball speed
                     satBall.setISpeed(satBall.getISpeed() + 3);
                     bBluePower = true;
+                    socSpeed.play();
                     break;
                 }
                 case "BOMBER": { // If block has a bomb, it drops it

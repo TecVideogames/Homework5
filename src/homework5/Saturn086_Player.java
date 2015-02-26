@@ -61,7 +61,7 @@ public class Saturn086_Player extends Saturn086_Character{
     
     /**
      * move
-     * 
+     * d
      * Method used for AI and keyboard movement
      */
     @Override

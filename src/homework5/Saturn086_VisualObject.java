@@ -66,6 +66,15 @@ public abstract class Saturn086_VisualObject extends Saturn086_Object {
     }
     
     /**
+     * setImage
+     * 
+     * Set object's image (Only for internal use)
+     */
+    public void setImage(Image imaNew) {
+        imaImage = imaNew;        
+    }
+    
+    /**
      * resizeImage
      * 
      * Resize object's image to a desired size
@@ -96,6 +105,21 @@ public abstract class Saturn086_VisualObject extends Saturn086_Object {
         resizeImage(iSizeX, iSizeY);
         // Create object's image icon
         imiIcon = new ImageIcon(imaImage);
+    }
+    
+    /**
+     * resizeImageIcon
+     * 
+     * Resize object's image icon
+     * 
+     * @param iSizeX is an <code> int </code> for the image's
+     * new horizontal size
+     * @param iSizeY is an <code> int </code> for the image's new vertical size
+     */
+    public void resizeImageIcon(int iSizeX, int iSizeY) {
+    
+        resizeImage(iSizeX, iSizeY);
+        
     }
     
     /**
