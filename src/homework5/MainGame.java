@@ -326,7 +326,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         satPlayer.move(); // Move bar
         satBall.move(); // Move ball
         
-        if(aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
+        if (aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
                     //Determina el tiempo que ha transcurrido desde que el
                     //Applet inicio su ejecución
             long tiempoTranscurrido =
@@ -341,40 +341,42 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             aniBarRed.actualiza(tiempoTranscurrido);
         }
         
-        if(aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
-                    //Determina el tiempo que ha transcurrido desde que el Applet inicio su ejecución
-            long tiempoTranscurrido =
+        // determines image to be displayed by playing bar
+        if (aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
+                    
+            long lTiempoTranscurrido =
                 System.currentTimeMillis() - tiempoActual;
 
             //Guarda el tiempo actual
-            tiempoActual += tiempoTranscurrido;
+            tiempoActual += lTiempoTranscurrido;
 
             //Actualiza la animación en base al tiempo transcurrido
-            aniBarGreen.actualiza(tiempoTranscurrido);
-            aniBarYellow.actualiza(tiempoTranscurrido);
-            aniBarRed.actualiza(tiempoTranscurrido);
+            aniBarGreen.actualiza(lTiempoTranscurrido);
+            aniBarYellow.actualiza(lTiempoTranscurrido);
+            aniBarRed.actualiza(lTiempoTranscurrido);
             
         }
         
         // updateAnimations
-        for (int iI = 0; iI< lklAnimations.size(); iI ++) {
+        for (int iI = 0; iI < lklAnimations.size(); iI ++) {
             Animacion aniFor = (Animacion) lklAnimations.get(iI);
-            
-            if( !aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() > 
+            // check if animation is active and surpasses timeout
+            if( !aniFor.isBoolTermina() && aniFor.getTiempoDeAnimacion() > 
                     270 ) {
                 aniFor.setBoolTermina(true);
-                
-            } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() 
+            // check if animations is active and below timeout    
+            }
+            else if (!aniFor.isBoolTermina() && aniFor.getTiempoDeAnimacion() 
                     < 270) {
 
-            System.out.println(iI+1+" "+aniFor.getTiempoActual());    
-                        //Time since the JFrame's execution
-            long tiempoTranscurrido =
-                System.currentTimeMillis() - aniFor.getTiempoActual();
+                //Time since the JFrame's execution
+                long lTiempoTranscurrido =
+                    System.currentTimeMillis() - aniFor.getTiempoActual();
 
-            aniFor.setTiempoActual( aniFor.getTiempoActual() + 
-                    tiempoTranscurrido );
-            aniFor.actualiza(tiempoTranscurrido);
+                aniFor.setTiempoActual( aniFor.getTiempoActual() + 
+                        lTiempoTranscurrido );
+                aniFor.actualiza(lTiempoTranscurrido);
+                
             }
         }
         
@@ -413,7 +415,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // If all blocks are eliminated
         if(!(satPlayer.getIScore() == 0) && checkWin()) {
             // Advance in level
-            iLevel++;
+            iLevel ++;
             // Save player's current lifes
             int iLives = satPlayer.getILives();
             // Save player's socre
@@ -515,7 +517,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 satBall.setISpeed(satBall.getISpeed() - 3);
                 iCounterBlue = 500;
             }
-            if (satPlayer.getILives() == 0) {
+            if (satPlayer.getILives() <= 0) {
                 bScores = true;
             }
         }
@@ -618,6 +620,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     iJFrameWidth - 190, iJFrameHeight - 60);
             graDibujo.drawString("\'R\'/\'L\' -> Ball Direction", 
                     iJFrameWidth - 190, iJFrameHeight - 40);
+            graDibujo.drawString("\'W\' -> High Scores", 
+                    iJFrameWidth - 190, iJFrameHeight - 20);
 
             fonFont = new Font("Arial", Font.PLAIN, 15);
             graDibujo.setFont(fonFont);
@@ -636,8 +640,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     satPlayer.setImage(aniBarRed.getImagen());
                 }
                 satPlayer.paint(graDibujo, this);
-                //System.out.println(iWidthBar + " " + iHeightBar);
-                              
+                
                 paintBlocks(graDibujo, iBlockR, iBlockC);
                 paintBombs(graDibujo);
                 satBall.paint(graDibujo, this);
@@ -664,7 +667,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 if( lklAnimations != null ){
                     for (Object objAux : lklAnimations) {
                         Animacion aniAux = (Animacion) objAux;
-                        if (aniAux != null && !aniAux.getBoolTermina()) {
+                        if (aniAux != null && !aniAux.isBoolTermina()) {
                              graDibujo.drawImage(aniAux.getImagen(), 
                                      (int) aniAux.getPosX(), 
                                      (int) aniAux.getPosY(), this);
@@ -767,6 +770,19 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 socMainMusic.play();
             }
         }
+        
+        // open high score menu
+        if (keyEvent.getKeyCode() == 'W') {
+            // open jdialog
+            try {
+                JDialogScore.updateRanking(null,-1,
+                        "puntuaciones.txt");
+            } catch (IOException ioeError) {
+                System.out.println("Hubo un error en lectura de archivo" + 
+                        ioeError.toString());
+            }
+        }
+        
         // Display instructions
         if(bLoading && keyEvent.getKeyCode() == 'H') {
             JOptionPane.showMessageDialog(this, "Breaking Bad\n\n"

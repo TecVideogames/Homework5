@@ -4,187 +4,249 @@ import java.awt.Image;
 import java.util.ArrayList;
 
 /**
-	La clase Animacion maneja una serie de imágenes (cuadros)
-	y la cantidad de tiempo que se muestra cada cuadro.
-*/
+ * Animacion
+ * 
+ * Class that implements animations by displaying a sequence of images.
+ * Developed by Prof. Antonio Mejorado for Videogames Project Subject, and
+ * adopted in Homework 5.
+ * (Code descriptions and comments where left as originally coded
+ * but the indentation, variable name standards, and spacing where adapted
+ * in order to meet the class standards).
+ * 
+ * @author Antonio Mejorado
+ * @version 1.0
+ */
 
 public class Animacion{
 	
-	private ArrayList cuadros;
-	private int indiceCuadroActual;
-	private long tiempoDeAnimacion;
-	private long duracionTotal;
-        private int iPosX;
-        private int iPosY;
-        private boolean boolTermina;
-        private long tiempoActual;
+    private ArrayList arrCuadros;
+    private int iIndiceCuadroActual;
+    private long lTiempoDeAnimacion;
+    private long lDuracionTotal;
+    private int iPosX;
+    private int iPosY;
+    private boolean boolTermina;
+    private long lTiempoActual;
 	
-	/**
-		Crea una nueva Animacion vacía
-	*/
-	public Animacion(){
-		cuadros = new ArrayList();
-		duracionTotal = 0;
-                iPosX = 0;
-                iPosY = 0;
-                boolTermina = false;
-		iniciar();
-	}
-	
-	/**
-		Añade una cuadro a la animación con la duración
-		indicada (tiempo que se muestra la imagen).
-	*/	
-	public synchronized void sumaCuadro(Image imagen, long duracion){
-		duracionTotal += duracion;
-		cuadros.add(new cuadroDeAnimacion(imagen, duracionTotal));
-	}
-	
-	// Inicializa la animación desde el principio. 
-	public synchronized void iniciar(){
-		tiempoDeAnimacion = 0;
-		indiceCuadroActual = 0;
-	}
-	
-	/**
-		Actualiza la imagen (cuadro) actual de la animación,
-		si es necesario.
-	*/
-	public synchronized void actualiza(long tiempoTranscurrido){
-		if (cuadros.size() > 1){
-			tiempoDeAnimacion += tiempoTranscurrido;
-			
-			if (tiempoDeAnimacion >= duracionTotal){
-				tiempoDeAnimacion = tiempoDeAnimacion % duracionTotal;
-				indiceCuadroActual = 0; 
-			}
-			
-			while (tiempoDeAnimacion > getCuadro(indiceCuadroActual).tiempoFinal){
-				indiceCuadroActual++;
-			}
-		}
-	}
-        
-        public boolean getBoolTermina(){
-            return boolTermina;
+    /**
+        Crea una nueva Animacion vacía
+    */
+    public Animacion() {
+        arrCuadros = new ArrayList();
+        lDuracionTotal = 0;
+        iPosX = 0;
+        iPosY = 0;
+        boolTermina = false;
+        iniciar();
+    }
+
+    /**
+        Añade una cuadro a la animación con la duración
+        indicada (tiempo que se muestra la imagen).
+    */	
+    public synchronized void sumaCuadro(Image imaImagen, long lDuracion) {
+        lDuracionTotal += lDuracion;
+        arrCuadros.add(new cuadroDeAnimacion(imaImagen, lDuracionTotal));
+    }
+
+    // Inicializa la animación desde el principio. 
+    public synchronized void iniciar() {
+        lTiempoDeAnimacion = 0;
+        iIndiceCuadroActual = 0;
+    }
+
+    /**
+        Actualiza la imagen (cuadro) actual de la animación,
+        si es necesario.
+    */
+    public synchronized void actualiza(long lTiempoTranscurrido) {
+        if (arrCuadros.size() > 1) {
+
+            lTiempoDeAnimacion += lTiempoTranscurrido;
+
+            if (lTiempoDeAnimacion >= lDuracionTotal) {
+                lTiempoDeAnimacion = 
+                        lTiempoDeAnimacion % lDuracionTotal;
+                iIndiceCuadroActual = 0; 
+            }
+
+            while (lTiempoDeAnimacion > 
+                getCuadro(iIndiceCuadroActual).lTiempoFinal){
+                iIndiceCuadroActual ++;
+            }
         }
-        public void setBoolTermina(boolean bTermina){
-            boolTermina = bTermina;
+    }
+    
+    /**
+        isBooleanTermina
+        gets boolTermina <code>boolean</code> value
+    */
+    public boolean isBoolTermina() {
+        return boolTermina;
+    }
+    
+    /**
+        setBooleanTermina
+        sets <code>boolTermina</code> value
+        @param boolT
+    */
+    public void setBoolTermina(boolean boolT) {
+        boolTermina = boolT;
+    }
+    
+    /**
+        getTiempoActual
+        gets lTiempoActual <code>long</code> value
+    */
+    public long getTiempoActual() {
+        return lTiempoActual;
+    }
+    /**
+        setTiempoActual
+        sets <code>lTiempoActual</code> value
+        @param lTiempo
+    */
+    public void setTiempoActual(long lTiempo) {
+        lTiempoActual = lTiempo;
+    }
+
+    /**
+        Actualiza la imagen (cuadro) actual de la animación,
+        si es necesario.
+    */
+    public synchronized void get(long tiempoTranscurrido) {
+        if (arrCuadros.size() > 1) {
+            lTiempoDeAnimacion += tiempoTranscurrido;
+
+            if (lTiempoDeAnimacion >= lDuracionTotal) {
+                lTiempoDeAnimacion = 
+                        lTiempoDeAnimacion % lDuracionTotal;
+                iIndiceCuadroActual = 0; 
+            }
+
+            while (lTiempoDeAnimacion > 
+                getCuadro(iIndiceCuadroActual).lTiempoFinal) {
+                iIndiceCuadroActual ++;
+            }
         }
-        
-        public long getTiempoActual(){
-            return tiempoActual;
+    }
+    /**
+     * Devuelve el tiempo que se ha estado ejecutando la animacion
+     * 
+    */
+    public long getTiempoDeAnimacion() {
+        return lTiempoDeAnimacion;
+    }
+
+    /**
+     * Devuelve posicion en X de animacion
+     * 
+    */
+    public long getPosX() {
+        return iPosX;
+    }
+
+    /**
+     * Devuelve posicion en Y de animacion
+     * 
+    */
+    public long getPosY() {
+        return iPosY;
+    }
+
+    /**
+     * Updates animations X coordinate
+     * 
+    */
+    public void setPosX(int iX) {
+        iPosX = iX;
+    }
+
+    /**
+     * Updates animations Y coordinate
+     * 
+    */
+    public void setPosY(int iY) {
+        iPosY = iY;
+    }
+
+    /**
+        Captura la imagen actual de la animación. Regeresa null
+        si la animación no tiene imágenes.
+    */
+    public synchronized Image getImagen() {
+        if (arrCuadros.size() == 0) {
+            return null;
         }
-        public void setTiempoActual(long iTiempo){
-            tiempoActual = iTiempo;
+        else {
+            return getCuadro(iIndiceCuadroActual).imaImagen;
         }
-        
+    }
+
+    /**
+        Devuelve numero de cuadro actual que despliega la animacion
+    */
+    private cuadroDeAnimacion getCuadro(int iI) {
+        return (cuadroDeAnimacion)arrCuadros.get(iI);
+    }
+    
+    /**
+        Sub-clase para manejar cuadros (imagenes) que conforman una animacion
+    */
+    public class cuadroDeAnimacion {
+
+        Image imaImagen;
+        long lTiempoFinal;
         /**
-		Actualiza la imagen (cuadro) actual de la animación,
-		si es necesario.
-	*/
-	public synchronized void get(long tiempoTranscurrido){
-		if (cuadros.size() > 1){
-			tiempoDeAnimacion += tiempoTranscurrido;
-			
-			if (tiempoDeAnimacion >= duracionTotal){
-				tiempoDeAnimacion = tiempoDeAnimacion % duracionTotal;
-				indiceCuadroActual = 0; 
-			}
-			
-			while (tiempoDeAnimacion > getCuadro(indiceCuadroActual).tiempoFinal){
-				indiceCuadroActual++;
-			}
-		}
-	}
-        /**
-         * Devuelve el tiempo que se ha estado ejecutando la animacion
-         * 
+            Constructor
         */
-        public long getTiempoDeAnimacion(){
-            return tiempoDeAnimacion;
+        public cuadroDeAnimacion() {
+            this.imaImagen = null;
+            this.lTiempoFinal = 0;
         }
         
         /**
-         * Devuelve posicion en X de animacion
-         * 
+            Constructor con parametros
         */
-        public long getPosX(){
-            return iPosX;
+        public cuadroDeAnimacion(Image imaI, long lTiempo) {
+            this.imaImagen = imaI;
+            this.lTiempoFinal = lTiempo;
         }
         
         /**
-         * Devuelve posicion en Y de animacion
-         * 
+            getImagen
+            devuelve objeto de tipo <code>Imagen</code> 
         */
-        public long getPosY(){
-            return iPosY;
+        public Image getImagen() {
+            return imaImagen;
         }
         
         /**
-         * Updates animations X coordinate
-         * 
+            getTiempoFinal
+            obtiene valor de <code>lTiempoFinal</code>
         */
-        public void setPosX(int iX){
-            iPosX = iX;
+        public long getTiempoFinal() {
+            return lTiempoFinal;
         }
         
         /**
-         * Updates animations Y coordinate
-         * 
+            setImagen
+            asigna <code>Imagen</code>
+            @param imaI
         */
-        public void setPosY(int iY){
-            iPosY = iY;
+        public void setImagen(Image imaI) {
+            this.imaImagen = imaI;
         }
-	
-	/**
-		Captura la imagen actual de la animación. Regeresa null
-		si la animación no tiene imágenes.
-	*/
-	public synchronized Image getImagen(){
-		if (cuadros.size() == 0){
-			return null;
-		}
-		else {
-			return getCuadro(indiceCuadroActual).imagen;
-		}
-	}
         
-	
-	private cuadroDeAnimacion getCuadro(int i){
-		return (cuadroDeAnimacion)cuadros.get(i);
-	}
-	
-	public class cuadroDeAnimacion{
-		
-		Image imagen;
-		long tiempoFinal;
-		
-		public cuadroDeAnimacion(){
-			this.imagen = null;
-			this.tiempoFinal = 0;
-		}
-		
-		public cuadroDeAnimacion(Image imagen, long tiempoFinal){
-			this.imagen = imagen;
-			this.tiempoFinal = tiempoFinal;
-		}
-		
-		public Image getImagen(){
-			return imagen;
-		}
-		
-		public long getTiempoFinal(){
-			return tiempoFinal;
-		}
-		
-		public void setImagen (Image imagen){
-			this.imagen = imagen;
-		}
-		
-		public void setTiempoFinal(long tiempoFinal){
-			this.tiempoFinal = tiempoFinal;
-		}
-	}
+        /**
+            setTiempoFinal
+            asigna <code>long</code> 
+            @param lTiempo
+        */
+        public void setTiempoFinal(long lTiempo) {
+            this.lTiempoFinal = lTiempo;
+        }
+        
+    }
 		
 }
