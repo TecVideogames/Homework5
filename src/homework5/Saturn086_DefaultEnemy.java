@@ -67,6 +67,13 @@ public class Saturn086_DefaultEnemy extends Saturn086_Character{
                 setIPosY(getIPosY() + iSpeed);
                 break;
             }
+            case STOP_LEFT: { // Left (Used for faces)
+                setIPosX(getIPosX() + iSpeed);
+                break;
+            }
+            case STOP_UP: { // Right (Used for faces)
+                break;
+            }
         }
     }
 

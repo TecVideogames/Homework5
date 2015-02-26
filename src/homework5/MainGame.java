@@ -34,6 +34,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private boolean bFirstTime;
     private boolean bBluePower;
     private boolean bScores;
+    private boolean bShowFace;
     private int iJFrameWidth;
     private int iJFrameHeight;
     private int iLevel;
@@ -42,6 +43,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private int iDifficulty;
     private int iCounterBlue;
     private int iCantBombs;
+    private int iFaceCounter;
+    private int iFaceIndex;
     private Image imaImageJFrame;
     private Image imaImageInstructions;
     private ImageIcon imiImageInstructions;
@@ -55,6 +58,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     private Animacion aniBarGreen;
     private Animacion aniBarYellow;
     private Animacion aniBarRed;
+    private Saturn086_DefaultEnemy[] satArrFaces;
     
     // green bar images
     Image imaGreen0;
@@ -236,6 +240,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         satPlayer = new Saturn086_Player();
         satBall = new Saturn086_DefaultEnemy();
         satArrBombs = new Saturn086_DefaultEnemy[iCantBombs];
+        satArrFaces = new Saturn086_DefaultEnemy[4];
         
         // Reset all objects to their default values
         newGame();
@@ -259,6 +264,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         selectBlockLives(iBlockR, iBlockC); 
         // Select how many blocks will be shown ér level
         randomFigure(iBlockR, iBlockC);
+        iFaceCounter = 40;
+        newFaces();
     }
     
     /** 
@@ -274,6 +281,44 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         Thread th = new Thread (this);
         // Start thread
         th.start ();
+    }
+    
+    /**
+     * paintFaces
+     * 
+     * Method used for painting the faces
+     * 
+     * @param graDibujo is the image where the faces are drawn
+     */
+    public void paintFaces(Graphics graDibujo){
+        for (int iI = 0; iI < 4; iI ++) {
+            satArrFaces[iI].paint(graDibujo, this);
+        }
+    }
+    
+    /**
+     * newFaces
+     * 
+     * Set faces to their default values
+     */
+    public void newFaces() {
+        for (int iI = 0; iI < 4; iI ++) {
+            satArrFaces[iI] = new Saturn086_DefaultEnemy();
+            satArrFaces[iI].setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
+            satArrFaces[iI].setImageIcon("face" + iI + ".gif", 80, 100);
+            satArrFaces[iI].setISpeed(2);
+            satArrFaces[iI].setStrName("FACE" + iI);
+            satArrFaces[iI].setBPaint(false);
+        }
+        
+        satArrFaces[0].setIPosX(0);
+        satArrFaces[0].setIPosY(iJFrameHeight - 100);
+        satArrFaces[1].setIPosX(iJFrameWidth / 4);
+        satArrFaces[1].setIPosY(iJFrameHeight - 100);
+        satArrFaces[2].setIPosX(iJFrameWidth / 2);
+        satArrFaces[2].setIPosY(iJFrameHeight - 100);
+        satArrFaces[3].setIPosX(iJFrameWidth - 80);
+        satArrFaces[3].setIPosY(iJFrameHeight - 100);
     }
     
     /** 
@@ -325,7 +370,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     public void actualize() {
         satPlayer.move(); // Move bar
         satBall.move(); // Move ball
-        
         if(aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
                     //Determina el tiempo que ha transcurrido desde que el
                     //Applet inicio su ejecución
@@ -352,8 +396,18 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             //Actualiza la animación en base al tiempo transcurrido
             aniBarGreen.actualiza(tiempoTranscurrido);
             aniBarYellow.actualiza(tiempoTranscurrido);
-            aniBarRed.actualiza(tiempoTranscurrido);
-            
+            aniBarRed.actualiza(tiempoTranscurrido);  
+        }
+        
+        
+        if(bShowFace) {
+            iFaceCounter--;                    
+        }
+        
+        if(iFaceCounter <= 0){
+            satArrFaces[iFaceIndex].setBPaint(false);
+            iFaceCounter = 40;
+            bShowFace = false;
         }
         
         // updateAnimations
@@ -388,7 +442,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             if(iCounterBlue <= 0) {
                 bBluePower = false;
                 // Return ball to normal speed
-                satBall.setISpeed(satBall.getISpeed() - 3);
+                satBall.setISpeed(satBall.getISpeed() - 2);
                 iCounterBlue = 500;
             }
         }
@@ -512,7 +566,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             // Used to reset blue power values
             if (bBluePower == true) {
                 bBluePower = false;
-                satBall.setISpeed(satBall.getISpeed() - 3);
+                satBall.setISpeed(satBall.getISpeed() - 2);
                 iCounterBlue = 500;
             }
             if (satPlayer.getILives() == 0) {
@@ -636,7 +690,9 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     satPlayer.setImage(aniBarRed.getImagen());
                 }
                 satPlayer.paint(graDibujo, this);
-                //System.out.println(iWidthBar + " " + iHeightBar);
+                if(bShowFace) {
+                    paintFaces(graDibujo);
+                }
                               
                 paintBlocks(graDibujo, iBlockR, iBlockC);
                 paintBombs(graDibujo);
@@ -1024,7 +1080,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         if (satArrBlocks[iI][iJ].getStrName().equals("NORMAL")
                                 || satArrBlocks[iI][iJ].getStrName().
                                         equals("BOMBER")) {
-
+                            
                             socBlock.play();
                         }
                         
@@ -1048,6 +1104,12 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         if (!satArrBlocks[iI][iJ].getStrName().
                                 equals("NORMAL")) {
                             satArrBlocks[iI][iJ].setILives(0);
+                            
+                            if(!bShowFace) {
+                                iFaceIndex = (int)(Math.random() * 4);
+                                satArrFaces[iFaceIndex].setBPaint(true);
+                                bShowFace = true;
+                            }
                         }
                     }
                     // If block is visible
@@ -1150,7 +1212,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             satArrBombs[iI].setImageIcon("Bomb.png", 30, 30);
             satArrBombs[iI].setISpeed(6);
             satArrBombs[iI].setStrName("BOMB");
-            satArrBombs[iI].setBPaint(true);
+            satArrBombs[iI].setBPaint(false);
         }
     }
     
@@ -1272,13 +1334,14 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         int iK;
         int iILimit = iC;
         
+        bShowFace = true;
+        
         // Only if it is not a normal block
         if(!satArrBlocks[iR][iC].getStrName().equals("NORMAL")) {
             switch(satArrBlocks[iR][iC].getStrName()) {
                 case "LIFE": { // Add life to player
                     satPlayer.setILives(satPlayer.getILives() + 1);
                     socLife.play();
-                    break;
                 }
                 case "BOOM": { // Destroy surrounding blocks
                     if(iR != 0) { // If not in upper row
@@ -1328,7 +1391,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     break;
                 }
                 case "SPEED": { // Decrease ball speed
-                    satBall.setISpeed(satBall.getISpeed() + 3);
+                    satBall.setISpeed(satBall.getISpeed() + 2);
                     bBluePower = true;
                     socSpeed.play();
                     break;
