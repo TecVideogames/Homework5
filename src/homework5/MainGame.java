@@ -135,15 +135,17 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // initialized animations linked list
         lklAnimations = new LinkedList<Animacion>();
 
-        iCantBombs = 5;
-        socMainMusic = new SoundClip("Main.wav");
-        socMainMusic.setLooping(true);
-        socMenuMusic = new SoundClip("Menu.wav");
-        socMenuMusic.setLooping(true);
-        socMainMusic.stop();
-        socMenuMusic.play();
+        iCantBombs = 5; // Number of bombs that appear in each level
+        socMainMusic = new SoundClip("Menu.wav"); // Assign music file
+        socMainMusic.setLooping(true); // Play forever
+        socMenuMusic = new SoundClip("Menu.wav"); // Assign music file
+        socMenuMusic.setLooping(true); // Play forever
+        socMainMusic.stop(); // Stop music from playing
+        socMenuMusic.play(); // Play Main menu music
+        // Load instruction's image
         imaImageInstructions = Toolkit.getDefaultToolkit().
                 getImage(this.getClass().getResource("ImageInstructions.png"));
+        // Make image small
         imaImageInstructions = imaImageInstructions.getScaledInstance(100, 140,
                 java.awt.Image.SCALE_DEFAULT);
         imiImageInstructions = new ImageIcon(imaImageInstructions);
@@ -157,6 +159,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         satBall = new Saturn086_DefaultEnemy();
         satArrBombs = new Saturn086_DefaultEnemy[iCantBombs];
         
+        // Reset all objects to their default values
         newGame();
         
         //Adds to the JFrame the capability to hear keyboard events
@@ -215,9 +218,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 actualize();
                 checkCollision();
             }
-            else {
-                // Code for menu SERGIO VAS AQUI
-            }
+            
             repaint();
             try	{
                 // El thread se duerme.
@@ -236,8 +237,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
      * Method that updates the objects status 
      */
     public void actualize() {
-        satPlayer.move();
-        satBall.move();
+        satPlayer.move(); // Move bar
+        satBall.move(); // Move ball
         
         // updateAnimations
         for (int iI = 0; iI< lklAnimations.size(); iI ++) {
@@ -274,46 +275,60 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             }
         }
         
-        moveBombs();
+        moveBombs(); // When activated move bombs downwards
         
+        // If blue block is touched
         if (bBluePower) {
+            // Active for 10 seconds
             iCounterBlue--;
-            
+            // When time is up
             if(iCounterBlue <= 0) {
                 bBluePower = false;
+                // Return ball to normal speed
                 satBall.setISpeed(satBall.getISpeed() - 3);
                 iCounterBlue = 500;
             }
         }
         
+        // If a life is lost or new game
         if (satBall.getBehavior() == Saturn086_Object.eBehavior.STOP_RIGHT) {
+            // Ball stays in the bar
             ballStartPos();
         }
         else {
+            // Start normal move movement
             satBall.move();
         }
         
+        // If game is lost
         if(satPlayer.getILives() <= 0) {
             bGameOver = true;
             bLoading = true;
             bFirstTime = true;
         }
         
-        if(!(satPlayer.getIScore() == 0) && 
-                (satPlayer.getIScore() % (iBlockCant
-                * 10) == 0)) {
+        // If all blocks are eliminated
+        if(!(satPlayer.getIScore() == 0) && checkWin()) {
+            // Advance in level
             iLevel++;
+            // Save player's current lifes
             int iLives = satPlayer.getILives();
+            // Save player's socre
             int iScore = satPlayer.getIScore();
+            // Reset to default values
             newGame();
+            // Set player's lifes
             satPlayer.setILives(iLives);
-            satPlayer.setIScore(iScore + 10);
-            iBlockCant = numberOfBlocks() + 10;
-            randomFigure(iBlockR, iBlockC); 
+            // Set player's score
+            satPlayer.setIScore(iScore);
         }
     }
     
-    // Ball bounces on left side
+    /**
+     * bounceLeft
+     * 
+     * Ball bounces on left side
+     */
     public void bounceLeft() {
         if(satBall.getBehavior() == Saturn086_Object.eBehavior.MOVE_UP) {
             satBall.setBehavior(Saturn086_Object.eBehavior.MOVE_RIGHT);
@@ -323,7 +338,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
-    // Ball bounces on right side
+    /**
+     * bounceRight
+     * 
+     * Ball bounces on right side
+     */
     public void bounceRight() {
         if(satBall.getBehavior() == Saturn086_Object.eBehavior.MOVE_RIGHT) {
             satBall.setBehavior(Saturn086_Object.eBehavior.MOVE_UP);
@@ -333,7 +352,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }    
     }
     
-    // Ball bounces on top side
+    /**
+     * bounceTop
+     * 
+     * Ball bounces on top side
+     */
     public void bounceTop() {
         if(satBall.getBehavior() == Saturn086_Object.eBehavior.MOVE_UP) {
             satBall.setBehavior(Saturn086_Object.eBehavior.MOVE_LEFT);
@@ -343,7 +366,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
-    // Ball bounces on bottom side
+    /**
+     * bounceBottom
+     * 
+     * Ball bounces on bottom side
+     */
     public void bounceBottom() {
         if(satBall.getBehavior() == Saturn086_Object.eBehavior.MOVE_DOWN) {
             satBall.setBehavior(Saturn086_Object.eBehavior.MOVE_RIGHT);
@@ -362,19 +389,19 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // Player cannot get outside the JFrame
         satPlayer.marginContainer(iJFrameWidth, iJFrameHeight);
         // Ball bounces on left margin
-        if(satBall.leftMarginCheck()) {
+        if (satBall.leftMarginCheck()) {
             bounceLeft();
         }
         // Ball bounces on right margin
-        if(satBall.rightMarginCheck(iJFrameWidth)) {
+        if (satBall.rightMarginCheck(iJFrameWidth)) {
             bounceRight();
         }
         // Ball bounces on upper margin
-        if(satBall.topMarginCheck()) {
+        if (satBall.topMarginCheck()) {
             bounceTop();
         }
         // Ball bounces on bottom margin
-        if(satBall.bottomMarginCheck(iJFrameHeight)) {
+        if (satBall.bottomMarginCheck(iJFrameHeight)) {
             bounceBottom();
             satBall.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
             // Player looses 1 live
@@ -393,7 +420,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         intersectPlayer();
         // Collision with falling bombs
         intersectBombs();
-
     }
     
     /**
@@ -417,12 +443,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
 
         // Update background image
         URL urlImageBG = this.getClass().getResource("GameBackground.jpg");
-        
+        // Show loading image
         if (bLoading) {
             urlImageBG = this.getClass().getResource("GameLoading.jpg");
             iHeight = 0;
         }
-        
         Image imaImageBG = 
                 Toolkit.getDefaultToolkit().getImage(urlImageBG);
         graGraficsJFrame.drawImage(imaImageBG, 0, 
@@ -449,43 +474,47 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     public void paint2(Graphics graDibujo) {
         // Verify that game hasn't ended
         if (bGameOver || bLoading) {
+            // Draw white lines
             graDibujo.setColor(Color.white);
-                Font fonFont = new Font("Arial", Font.PLAIN, 30);
-                graDibujo.setFont(fonFont);
-                
-                if(bGameOver) {
-                    graDibujo.drawString("Game Over", iJFrameWidth / 2 - 55 ,
-                            60);
-                    fonFont = new Font("Arial", Font.PLAIN, 15);
-                    graDibujo.setFont(fonFont);
-                    graDibujo.drawString("Points: " + satPlayer.getIScore(),
-                            iJFrameWidth - 190 , iJFrameHeight - 230);
-                    graDibujo.drawString("Level: " + iLevel,
-                            iJFrameWidth - 190 , iJFrameHeight - 200);
-                }
-                else {
-                   graDibujo.drawString("Main Menu", iJFrameWidth / 2 - 55 ,
-                            60); 
-                }
-                
+            // set font
+            Font fonFont = new Font("Arial", Font.PLAIN, 30);
+            graDibujo.setFont(fonFont);
+
+            // If game was lost
+            if(bGameOver) {
+                graDibujo.drawString("Game Over", iJFrameWidth / 2 - 55 ,
+                        60);
                 fonFont = new Font("Arial", Font.PLAIN, 15);
                 graDibujo.setFont(fonFont);
-                
-                graDibujo.drawString("Press:", iJFrameWidth - 190 ,
-                        iJFrameHeight - 150);
-                graDibujo.drawString("\'S\' -> Start New Game", 
-                        iJFrameWidth - 190 , iJFrameHeight - 120);
-                graDibujo.drawString("\'M\' -> Main Menu", 
-                        iJFrameWidth - 190 , iJFrameHeight - 100);
-                graDibujo.drawString("\'H\' -> Game Instructions", 
-                        iJFrameWidth - 190, iJFrameHeight - 80);
-                graDibujo.drawString("\'P\' -> Pause Game", 
-                        iJFrameWidth - 190, iJFrameHeight - 60);
-                graDibujo.drawString("\'R\'/\'L\' -> Ball Direction", 
-                        iJFrameWidth - 190, iJFrameHeight - 40);
-                
-                fonFont = new Font("Arial", Font.PLAIN, 15);
-                graDibujo.setFont(fonFont);
+                graDibujo.drawString("Points: " + satPlayer.getIScore(),
+                        iJFrameWidth - 190 , iJFrameHeight - 230);
+                graDibujo.drawString("Level: " + iLevel,
+                        iJFrameWidth - 190 , iJFrameHeight - 200);
+            }
+            else {
+               graDibujo.drawString("Main Menu", iJFrameWidth / 2 - 55 ,
+                        60); 
+            }
+            // Return to standard font
+            fonFont = new Font("Arial", Font.PLAIN, 15);
+            graDibujo.setFont(fonFont);
+
+            // Display options
+            graDibujo.drawString("Press:", iJFrameWidth - 190 ,
+                    iJFrameHeight - 150);
+            graDibujo.drawString("\'S\' -> Start New Game", 
+                    iJFrameWidth - 190 , iJFrameHeight - 120);
+            graDibujo.drawString("\'M\' -> Main Menu", 
+                    iJFrameWidth - 190 , iJFrameHeight - 100);
+            graDibujo.drawString("\'H\' -> Game Instructions", 
+                    iJFrameWidth - 190, iJFrameHeight - 80);
+            graDibujo.drawString("\'P\' -> Pause Game", 
+                    iJFrameWidth - 190, iJFrameHeight - 60);
+            graDibujo.drawString("\'R\'/\'L\' -> Ball Direction", 
+                    iJFrameWidth - 190, iJFrameHeight - 40);
+
+            fonFont = new Font("Arial", Font.PLAIN, 15);
+            graDibujo.setFont(fonFont);
         }
         else {
             // if object images are loaded
@@ -513,8 +542,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         (iCounterBlue / 50) + " sec.") ,
                         350, 50);
                 
-                graDibujo.drawString(String.valueOf(iBlockCant) ,
-                        500, 50);
                 graDibujo.setColor(Color.black);
                 
                 // Paint animations
@@ -522,13 +549,15 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     for (Object objAux : lklAnimations) {
                         Animacion aniAux = (Animacion) objAux;
                         if (aniAux != null && !aniAux.getBoolTermina()) {
-                             graDibujo.drawImage(aniAux.getImagen(), (int) aniAux.getPosX(), (int) aniAux.getPosY(), this);
+                             graDibujo.drawImage(aniAux.getImagen(), 
+                                     (int) aniAux.getPosX(), 
+                                     (int) aniAux.getPosY(), this);
                         } 
                     }
                 }
-                
+                // Paint Pause
                 if (bPause) {
-                    // Paint Pause
+                    // Show pause message in large font
                     Font fonFont = new Font("Arial", Font.PLAIN, 40);
                     graDibujo.setFont(fonFont);
                     graDibujo.setColor(Color.white);
@@ -547,16 +576,35 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }         
     }
 
+    /**
+     * keyTyped
+     * 
+     * Metodo sobrescrito de la interface <code>KeyListener</code>.<P>
+     * En este metodo maneja el evento que se genera al presionar una 
+     * tecla que no es de accion.
+     * 
+     * @param keyEvent es el <code>KeyEvent</code> que se genera en al 
+     * presionar.
+     */
     @Override
     public void keyTyped(KeyEvent keyEvent) {
         // Not supported in this application
     }
 
+    /**
+     * keyPressed
+     * 
+     * Metodo sobrescrito de la interface <code>KeyListener</code>.<P>
+     * En este metodo maneja el evento que se genera al dejar presionada
+     * alguna tecla.
+     * 
+     * @param keyEvent es el <code>KeyEvent</code> que se genera al presionar.
+     */
     @Override
     public void keyPressed(KeyEvent keyEvent) {
-        // se verifica que el juego no este pausado
+        // Verify that game is not paused
         if (!bPause) {
-            // se checa presion de teclas y se actualize casilla correspondiente
+            // Move bar
             if (keyEvent.getKeyCode() == KeyEvent.VK_RIGHT) {
                 satPlayer.setBehavior(Saturn086_Object.eBehavior.MOVE_RIGHT);
             }
@@ -566,13 +614,20 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
 
+    /**
+     * keyReleased
+     * Metodo sobrescrito de la interface <code>KeyListener</code>.<P>
+     * En este metodo maneja el evento que se genera al soltar la tecla.
+     * 
+     * @param keyEvent es el <code>KeyEvent</code> que se genera en al soltar.
+     */
     @Override
     public void keyReleased(KeyEvent keyEvent) {
-        // se cambia el estado de pausa
+        // Change pause state
         if (keyEvent.getKeyCode() == 'P') {
             bPause = !bPause;
         }
-        // terminar juego
+        // end game
         if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {  
             bGameOver = true;
             bLoading = true;
@@ -596,7 +651,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 socMainMusic.play();
             }
         }
-        
+        // Display instructions
         if(bLoading && keyEvent.getKeyCode() == 'H') {
             JOptionPane.showMessageDialog(this, "Breaking Bad\n\n"
                     + "You have found some anfetamine contraband\n"
@@ -631,8 +686,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 bBluePower = false;
             }
             
-            newGame();
-                        
+            // Reset object's attributes to their default values
+            newGame();            
             bLoading = false;
             
             // Play main menu music
@@ -646,9 +701,9 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 socMainMusic.play();
             }
         }
-        // se verifica que el juego no este pausado
+        // Verify that game is not paused
         if (!bPause) {
-            // se checa presion de teclas y se actualize casilla correspondiente
+            // Check keyboard
             if (keyEvent.getKeyCode() == KeyEvent.VK_RIGHT) {
                 satPlayer.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
             }
@@ -668,6 +723,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * playerNewGame
+     * 
+     * Used to establish players default values
+     */
     public void playerNewGame() {
         satPlayer.setImageIcon("bar.png", 100, 30);
         satPlayer.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
@@ -678,6 +738,14 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         satPlayer.setIPosX((iJFrameWidth / 2) - (satPlayer.getWidth() / 2));
     }
     
+    /**
+     * blocksNewGame
+     * 
+     * Used to establish the blocks default value
+     * 
+     * @param iBlockR is an <code> int </code> with the row quantity
+     * @param iBlockC is an <code> int </code> with the column quantity
+     */
     public void blocksNewGame(int iBlockR, int iBlockC) {
         for (int iI = 0; iI < iBlockR; iI ++) {
             for (int iJ = 0; iJ < iBlockC; iJ ++) {
@@ -696,8 +764,16 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * numberOfBlocks
+     * 
+     * used to select number of blocks to be displayed
+     * 
+     * @return an <code> int </code> with the number 
+     */
     public int numberOfBlocks() {
-       int iCant = iLevel * 5; 
+        // The number depends on the current level
+       int iCant = iLevel * 4; 
        
        if (iCant > (iBlockR * iBlockC)) {
             iCant = (iBlockR * iBlockC);
@@ -706,18 +782,33 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
        return iCant;
     }
     
+    /**
+     * randomFigure
+     * 
+     * Select which blocks to show
+     * 
+     * @param iBlockR is an <code> int </code> with the row quantity
+     * @param iBlockC is an <code> int </code> with the column quantity
+     */
     public void randomFigure(int iBlockR, int iBlockC) {
         int iR;
         int iC;
         
         // Generate random coordinate
-        for (int iK = 0; iK < numberOfBlocks(); iK ++) {
+        for (int iK = 0; iK < numberOfBlocks() - (satPlayer.getIScore() / 2); iK ++) {
             iR = (int) (Math.random() * iBlockR);
             iC = (int) (Math.random() * iBlockC);
             satArrBlocks[iR][iC].setBPaint(true);
         }
     }
     
+    /**
+     * ballNewGame
+     * 
+     * Used to establish the ball's default values
+     * 
+     * @param iDifficulty is an <code> int </code> with the current difficulty
+     */
     public void ballNewGame(int iDifficulty) {
         satBall.setImageIcon("ball.gif", 30, 30);
         satBall.setBehavior(Saturn086_Object.eBehavior.STOP_RIGHT);
@@ -726,12 +817,26 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         ballStartPos();
     }
     
+    /**
+     * ballStartPos
+     * 
+     * Used to determine where the ball appears (Follows the bar)
+     */
     public void ballStartPos() {
         satBall.setIPosX(satPlayer.getIPosX() + (satPlayer.getWidth() / 2) - 
                 (satBall.getWidth() / 2));
         satBall.setIPosY(satPlayer.getIPosY() - (satBall.getHeight()));
     }
     
+    /**
+     * paintBlocks
+     * 
+     * Paints the specified blocks
+     * 
+     * @param graDibujo is the image where the blocks are painted
+     * @param iBlockR is an <code> int </code> with the row quantity
+     * @param iBlockC is an <code> int </code> with the column quantity
+     */
     public void paintBlocks(Graphics graDibujo, int iBlockR, int iBlockC) {
         for (int iI = 0; iI < iBlockR; iI ++) {
             for (int iJ = 0; iJ < iBlockC; iJ ++) {
@@ -743,6 +848,13 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * paintBombs
+     * 
+     * Paint a bomb when it starts to fall
+     * 
+     * @param graDibujo  is the image where the bombs are painted
+     */
     public void paintBombs(Graphics graDibujo) {
         for (int iI = 0; iI < iCantBombs; iI ++) {
             if(satArrBombs[iI].getBPaint()) {
@@ -751,6 +863,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * intersectBombs
+     * 
+     * Method used to check when a bomb touches the bar
+     */
     public void intersectBombs() {
         for (int iI = 0; iI < iCantBombs; iI ++) {
             if (satPlayer.intersects(satArrBombs[iI])) {
@@ -764,6 +881,14 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * intersectBlocks
+     * 
+     * Method used to check when the ball touches a block
+     * 
+     * @param iBlockR is an <code> int </code> with the row quantity
+     * @param iBlockC is an <code> int </code> with the column quantity
+     */
     public void intersectBlocks(int iBlockR, int iBlockC) {
         for (int iI = 0; iI < iBlockR; iI ++) {
             for (int iJ = 0; iJ < iBlockC; iJ ++) {
@@ -774,7 +899,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         // Win points
                         //satPlayer.setIScore(satPlayer.getIScore() + 10);
                         if (satArrBlocks[iI][iJ].getStrName() == "NORMAL"
-                                || satArrBlocks[iI][iJ].getStrName() == "BOMBER") {
+                                || satArrBlocks[iI][iJ].getStrName() == 
+                                "BOMBER") {
                         // add animation to linked list
                             aniAux = new Animacion();
                             // edit animation contents
@@ -786,18 +912,19 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                             aniAux.setTiempoActual(System.currentTimeMillis());
                             lklAnimations.add(aniAux);
                         }
+                        // Check to see if block has a power up
                         if (satArrBlocks[iI][iJ].getILives() > 0) {
                             checkPowerUps(iI, iJ);
                             satArrBlocks[iI][iJ].setILives(
                                     satArrBlocks[iI][iJ].getILives() - 1); 
                         }
-                        
+                        // Eliminate block
                         if (!satArrBlocks[iI][iJ].getStrName().
                                 equals("NORMAL")) {
                             satArrBlocks[iI][iJ].setILives(0);
                         }
                     }
-                    
+                    // If block is visible
                     if (satArrBlocks[iI][iJ].getBPaint()) { 
                         // Ball bounces on bottom part
                         if (satArrBlocks[iI][iJ].intersectsBottom(satBall)) {
@@ -817,7 +944,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         }
                     }
                 }
-                
+                // Upon hit dissapear block
                 if (satArrBlocks[iI][iJ].getILives() <= 0 && 
                         satArrBlocks[iI][iJ].getBPaint()) {
                     satPlayer.setIScore(satPlayer.getIScore() + 10);
@@ -827,7 +954,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
         
-    
+    /**
+     * intersectPlayer
+     * 
+     * Used to check when the ball touches the player
+     */
     public void intersectPlayer() {
         // Ball bounces on upper part
         if (satPlayer.intersectsTop(satBall)) {
@@ -843,6 +974,14 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * selectBlockLives
+     * 
+     * Assign each block a life from 1 to 3
+     * 
+     * @param iBlockR is an <code> int </code> with the row quantity
+     * @param iBlockC is an <code> int </code> with the column quantity
+     */
     public void selectBlockLives(int iBlockR, int iBlockC) {
         // Number of lives for each block generation
         int iLives;
@@ -856,6 +995,15 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * showBlockLives
+     * 
+     * Used to show each block's life
+     * 
+     * @param graDibujo is the image where the lives are painted
+     * @param iR is an <code> int </code> with the row
+     * @param iC is an <code> int </code> with the column
+     */
     public void showBlockLives(Graphics graDibujo, int iR, int iC) {
         graDibujo.drawString(Integer.toString(satArrBlocks[iR][iC].getILives()),
                 satArrBlocks[iR][iC].getIPosX() + 
@@ -864,6 +1012,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                         (satArrBlocks[iR][iC].getHeight() / 2));
     }
     
+    /**
+     * createBombs
+     * 
+     * Set the bomb's default values
+     */
     public void createBombs() {
         for(int iI = 0; iI < iCantBombs; iI ++) {
             satArrBombs[iI] = new Saturn086_DefaultEnemy();
@@ -875,17 +1028,39 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * assignBombs
+     * 
+     * Assign bomb to a block
+     * 
+     * @param iR is an <code> int </code> with the row
+     * @param iC is an <code> int </code> with the column
+     * @param iI is the index of the bombs
+     */
     public void assignBombs(int iR, int iC, int iI) {
         satArrBombs[iI].setIPosX(satArrBlocks[iR][iC].getIPosX());
         satArrBombs[iI].setIPosY(satArrBlocks[iR][iC].getIPosY());
     }
     
+    /**
+     * moveBombs
+     * 
+     * Used to move the bombs
+     */
     public void moveBombs() {
         for (int iI = 0; iI < iCantBombs; iI ++) {
             satArrBombs[iI].move();
         }
     }
     
+    /**
+     * selectPowerUps
+     * 
+     * Method used to assign some block bonuses
+     * 
+     * @param iBlockR is an <code> int </code> with the row quantity
+     * @param iBlockC is an <code> int </code> with the column quantity
+     */
     public void selectPowerUps(int iBlockR, int iBlockC) {
         // Number of bonus generation
         int iBonus = (int) ((Math.random() * 3) + 1);
@@ -933,13 +1108,45 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
     }
     
+    /**
+     * checkWin
+     * 
+     * Used to check if the player has passed the level
+     * 
+     * @return a <code> boolean </code> if the player won 
+     */
+    public boolean checkWin() {
+        // Used to check if the player has won
+        boolean bWin = true;
+        // If a single block is visible the level hasn't finished        
+        for (int iI = 0; iI < iBlockR; iI ++) {
+            for (int iJ = 0; iJ < iBlockC; iJ ++) {
+                if (satArrBlocks[iI][iJ].getBPaint())
+                bWin = false;
+            }
+        }
+        
+        return bWin;
+    }
+    
+    /**
+     * checkPowerUps
+     * 
+     * See if current block has a powerup
+     * 
+     * @param iR is an <code> int </code> with the row
+     * @param iC is an <code> int </code> with the column
+     */
     public void checkPowerUps(int iR, int iC) {
+        
+        // Used for the green bonus
         int iR2 = iR;
         int iI = iC;
         int iJ;
         int iK;
         int iILimit = iC;
         
+        // Only if it is not a normal block
         if(!satArrBlocks[iR][iC].getStrName().equals("NORMAL")) {
             switch(satArrBlocks[iR][iC].getStrName()) {
                 case "LIFE": { // Add life to player
@@ -998,7 +1205,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     bBluePower = true;
                     break;
                 }
-                case "BOMBER": {
+                case "BOMBER": { // If block has a bomb, it drops it
                     for (int iL = 0; iL < iCantBombs; iL ++) {
                         if (satArrBlocks[iR][iC].intersects(satArrBombs[iL])) {
                             satArrBombs[iL].setBehavior(
