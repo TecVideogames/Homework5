@@ -699,7 +699,6 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 if (bShowFace) {
                     paintFaces(graDibujo);
                 }
-
                 paintBlocks(graDibujo, iBlockR, iBlockC);
                 paintBombs(graDibujo);
                 satBall.paint(graDibujo, this);
