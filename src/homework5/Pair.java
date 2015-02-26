@@ -6,7 +6,6 @@ package homework5;
  * Models parametrized pairs of values 
  *
  * @author Mario Sergio Fuentes Juarez
- * @author Marco Antonio Peyrot
  * @version 1.0
  * @date 25/02/2015
  */

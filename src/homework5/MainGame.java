@@ -5,7 +5,7 @@
  * 
  * @author Marco Antonio Peyrot A00815262
  * @author Mario Sergio Fuentes AA01036141
- * @version 4.2
+ * @version 4.6
  * @date 23/02/2015
  */
 
@@ -81,7 +81,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     Image imaBlock2;
     
     // starting time
-    private long tiempoActual;
+    private long lTiempoActual;
     
     // sounds
     private SoundClip socMainMusic;
@@ -331,7 +331,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     @Override
     public void run() {  
         
-        tiempoActual = System.currentTimeMillis();
+        lTiempoActual = System.currentTimeMillis();
         // The Game cycle never stops until the game is exited
         while (true) { 
             // if game is not paused or lost continue with normal game execution
@@ -370,14 +370,15 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
     public void actualize() {
         satPlayer.move(); // Move bar
         satBall.move(); // Move ball
-        if(aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
+        
+        if (aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
                     //Determina el tiempo que ha transcurrido desde que el
                     //Applet inicio su ejecución
             long tiempoTranscurrido =
-                System.currentTimeMillis() - tiempoActual;
+                System.currentTimeMillis() - lTiempoActual;
 
             //Guarda el tiempo actual
-            tiempoActual += tiempoTranscurrido;
+            lTiempoActual += tiempoTranscurrido;
 
             //Actualiza la animación en base al tiempo transcurrido
             aniBarGreen.actualiza(tiempoTranscurrido);
@@ -385,18 +386,19 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
             aniBarRed.actualiza(tiempoTranscurrido);
         }
         
-        if(aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
-                    //Determina el tiempo que ha transcurrido desde que el Applet inicio su ejecución
-            long tiempoTranscurrido =
-                System.currentTimeMillis() - tiempoActual;
+        // determines image to be displayed by playing bar
+        if (aniBarGreen != null && aniBarYellow != null && aniBarRed != null) {
+                    
+            long lTiempoTranscurrido =
+                System.currentTimeMillis() - lTiempoActual;
 
             //Guarda el tiempo actual
-            tiempoActual += tiempoTranscurrido;
+            lTiempoActual += lTiempoTranscurrido;
 
             //Actualiza la animación en base al tiempo transcurrido
-            aniBarGreen.actualiza(tiempoTranscurrido);
-            aniBarYellow.actualiza(tiempoTranscurrido);
-            aniBarRed.actualiza(tiempoTranscurrido);  
+            aniBarGreen.actualiza(lTiempoTranscurrido);
+            aniBarYellow.actualiza(lTiempoTranscurrido);
+            aniBarRed.actualiza(lTiempoTranscurrido); 
         }
         
         
@@ -411,24 +413,25 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
         
         // updateAnimations
-        for (int iI = 0; iI< lklAnimations.size(); iI ++) {
+        for (int iI = 0; iI < lklAnimations.size(); iI ++) {
             Animacion aniFor = (Animacion) lklAnimations.get(iI);
-            
-            if( !aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() > 
+            // check if animation is active and surpasses timeout
+            if( !aniFor.isBoolTermina() && aniFor.getTiempoDeAnimacion() > 
                     270 ) {
                 aniFor.setBoolTermina(true);
-                
-            } else if (!aniFor.getBoolTermina() && aniFor.getTiempoDeAnimacion() 
+            // check if animations is active and below timeout    
+            }
+            else if (!aniFor.isBoolTermina() && aniFor.getTiempoDeAnimacion() 
                     < 270) {
 
-            System.out.println(iI+1+" "+aniFor.getTiempoActual());    
-                        //Time since the JFrame's execution
-            long tiempoTranscurrido =
-                System.currentTimeMillis() - aniFor.getTiempoActual();
+                //Time since the JFrame's execution
+                long lTiempoTranscurrido =
+                    System.currentTimeMillis() - aniFor.getTiempoActual();
 
-            aniFor.setTiempoActual( aniFor.getTiempoActual() + 
-                    tiempoTranscurrido );
-            aniFor.actualiza(tiempoTranscurrido);
+                aniFor.setTiempoActual( aniFor.getTiempoActual() + 
+                        lTiempoTranscurrido );
+                aniFor.actualiza(lTiempoTranscurrido);
+                
             }
         }
         
@@ -467,7 +470,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         // If all blocks are eliminated
         if(!(satPlayer.getIScore() == 0) && checkWin()) {
             // Advance in level
-            iLevel++;
+            iLevel ++;
             // Save player's current lifes
             int iLives = satPlayer.getILives();
             // Save player's socre
@@ -569,7 +572,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 satBall.setISpeed(satBall.getISpeed() - 2);
                 iCounterBlue = 500;
             }
-            if (satPlayer.getILives() == 0) {
+            if (satPlayer.getILives() <= 0) {
                 bScores = true;
             }
         }
@@ -602,7 +605,7 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
         }
 
         // Update background image
-        URL urlImageBG = this.getClass().getResource("GameBackground.jpg");
+        URL urlImageBG = this.getClass().getResource("GameBackground.jpeg");
         // Show loading image
         if (bLoading) {
             urlImageBG = this.getClass().getResource("GameLoading.jpg");
@@ -672,6 +675,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     iJFrameWidth - 190, iJFrameHeight - 60);
             graDibujo.drawString("\'R\'/\'L\' -> Ball Direction", 
                     iJFrameWidth - 190, iJFrameHeight - 40);
+            graDibujo.drawString("\'W\' -> High Scores", 
+                    iJFrameWidth - 190, iJFrameHeight - 20);
 
             fonFont = new Font("Arial", Font.PLAIN, 15);
             graDibujo.setFont(fonFont);
@@ -690,10 +695,11 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                     satPlayer.setImage(aniBarRed.getImagen());
                 }
                 satPlayer.paint(graDibujo, this);
-                if(bShowFace) {
+
+                if (bShowFace) {
                     paintFaces(graDibujo);
                 }
-                              
+
                 paintBlocks(graDibujo, iBlockR, iBlockC);
                 paintBombs(graDibujo);
                 satBall.paint(graDibujo, this);
@@ -709,7 +715,8 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 graDibujo.drawString(String.valueOf("Level: " + iLevel) ,
                         250, 50);
                 // Paint time counter for BLUE power
-                // Paint level
+                // Paint time for blue power
+                graDibujo.setColor(Color.yellow);
                 graDibujo.drawString(String.valueOf("Time left: " + 
                         (iCounterBlue / 50) + " sec.") ,
                         350, 50);
@@ -717,10 +724,10 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 graDibujo.setColor(Color.black);
                 
                 // Paint animations
-                if( lklAnimations != null ){
+                if (lklAnimations != null){
                     for (Object objAux : lklAnimations) {
                         Animacion aniAux = (Animacion) objAux;
-                        if (aniAux != null && !aniAux.getBoolTermina()) {
+                        if (aniAux != null && !aniAux.isBoolTermina()) {
                              graDibujo.drawImage(aniAux.getImagen(), 
                                      (int) aniAux.getPosX(), 
                                      (int) aniAux.getPosY(), this);
@@ -823,6 +830,19 @@ public class MainGame extends JFrame implements Runnable, KeyListener {
                 socMainMusic.play();
             }
         }
+        
+        // open high score menu
+        if (keyEvent.getKeyCode() == 'W') {
+            // open jdialog
+            try {
+                JDialogScore.updateRanking(null,-1,
+                        "puntuaciones.txt");
+            } catch (IOException ioeError) {
+                System.out.println("Hubo un error en lectura de archivo" + 
+                        ioeError.toString());
+            }
+        }
+        
         // Display instructions
         if(bLoading && keyEvent.getKeyCode() == 'H') {
             JOptionPane.showMessageDialog(this, "Breaking Bad\n\n"

@@ -1,5 +1,6 @@
 package homework5;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -68,13 +69,14 @@ public class JDialogScore {
                     final String strFileName, final int iPos){
         
         // jdialog initialization
-        jdiDialog = new JDialog(fraFrame, "Puntuaciones", true);
+        jdiDialog = new JDialog(fraFrame, "High Scores", true);
         jdiDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-        jdiDialog.setMinimumSize(new Dimension(200, 200));
+        jdiDialog.setMinimumSize(new Dimension(200, 260));
         
         // initialization of score ranking text area
         jtaRanking = new JTextArea();
         jtaRanking.setText(strScores);
+        jtaRanking.setEnabled(false);
   
         // initialization of player's name text field
         jtfPlayerName = new JTextField();
@@ -87,10 +89,10 @@ public class JDialogScore {
         butOk = new JButton("OK");
         
         // add JComponents to JDialog
-        jdiDialog.setLayout(new GridLayout(3, 1, 5, 5));
-        jdiDialog.add(jtaRanking);
-        jdiDialog.add(jtfPlayerName);
-        jdiDialog.add(butOk);
+        jdiDialog.setLayout(new BorderLayout());
+        jdiDialog.add("Center", jtaRanking);
+        jdiDialog.add("North", jtfPlayerName);
+        jdiDialog.add("South", butOk);
         jdiDialog.pack();
         
         // Listener for closing the JDialog and storing changes to file
@@ -227,7 +229,7 @@ public class JDialogScore {
             }
             
             // if the first greater score is among the first 9 postions
-            if (iPos <= 8) {
+            if (iPos <= 8 && iPoints != -1) {
                 // player's score is in 1-10 range and ranking must be updated
                 boolUpdate = true;
             }
@@ -238,11 +240,11 @@ public class JDialogScore {
             
             // strings containing JComponent values for the JDialog
             String strPlayerName;
-            String strScores = "Posicion\tNombre\t\tPuntuacion\n";
+            String strScores = "Position\tName\t\tScore\n";
             
             // if player's score will be added to ranking, insert its value
             // to the linked list
-            if (boolUpdate) {
+            if (boolUpdate && iPoints != -1) {
                 lklScores.add(iPos + 1, 
                         new Pair<String,Integer>("********",iPoints));
                 // if linked list size overflows, pop last element
@@ -250,11 +252,11 @@ public class JDialogScore {
                     lklScores.removeLast();
                 }
                 // update strPlayerName with congratulations message
-                strPlayerName = "Felicidades! Escribe tu nombre aqui.";
+                strPlayerName = "Congratulations! Write your name here.";
             }
             else {
                 // udate strPlayerName with pitiful message
-                strPlayerName = "Cerca! Vuelve a intentar.";
+                strPlayerName = "High scores list.";
             }
             
             // integer indicating player's ranking
@@ -267,6 +269,12 @@ public class JDialogScore {
                strScores += "" + iRank + ".\t" + paiAux.getL() +
                        "\t\t" + paiAux.getR() + "\n";
                iRank ++;
+            }
+            // complete empty positions
+            while (iRank < 11) {
+                strScores += "" + iRank + ".\t" + "        " +
+                       "\t\t" + "        " + "\n";
+                iRank ++;
             }
             // construct JDialog based on the values that will be displayed in
             // the JComponents
